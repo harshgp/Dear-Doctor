@@ -43,6 +43,13 @@ if ($action === 'get_data') {
     try {
         $agentCode = $_GET['agent_code'] ?? 'AGT-799';
 
+        // Auto-alter check for available_slots column
+        try {
+            $pdo->query("SELECT available_slots FROM doctors LIMIT 1");
+        } catch (Exception $e) {
+            $pdo->exec("ALTER TABLE doctors ADD COLUMN available_slots TEXT NULL");
+        }
+
         // Fetch Current Agent Info
         $stmt = $pdo->prepare("SELECT * FROM agents WHERE code = ? LIMIT 1");
         $stmt->execute([$agentCode]);
@@ -84,6 +91,7 @@ if ($action === 'get_data') {
                     'fee' => (int)$doc['fee'],
                     'weeklyDays' => json_decode($doc['weekly_days']),
                     'slotsPerDay' => (int)$doc['slots_per_day'],
+                    'availableSlots' => json_decode($doc['available_slots'] ?? '') ?: ['09:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM', '12:00 PM - 01:00 PM', '02:00 PM - 03:00 PM', '03:00 PM - 04:00 PM', '04:00 PM - 05:00 PM'],
                     'isActive' => (bool)$doc['is_active']
                 ];
             }
@@ -576,15 +584,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $slotsPerDay = (int)($input['slotsPerDay'] ?? 8);
         $weeklyDays = json_encode($input['weeklyDays'] ?? []);
         $isActive = isset($input['isActive']) ? (int)$input['isActive'] : 1;
+        $availableSlots = isset($input['availableSlots']) ? json_encode($input['availableSlots']) : null;
 
         try {
             if ($docId) {
-                $stmt = $pdo->prepare("UPDATE doctors SET name = ?, department = ?, specialty = ?, experience = ?, slots_per_day = ?, weekly_days = ?, is_active = ? WHERE id = ? AND hospital_id = ?");
-                $stmt->execute([$name, $department, $specialty, $experience, $slotsPerDay, $weeklyDays, $isActive, $docId, $hospitalId]);
+                if ($availableSlots !== null) {
+                    $stmt = $pdo->prepare("UPDATE doctors SET name = ?, department = ?, specialty = ?, experience = ?, slots_per_day = ?, weekly_days = ?, is_active = ?, available_slots = ? WHERE id = ? AND hospital_id = ?");
+                    $stmt->execute([$name, $department, $specialty, $experience, $slotsPerDay, $weeklyDays, $isActive, $availableSlots, $docId, $hospitalId]);
+                } else {
+                    $stmt = $pdo->prepare("UPDATE doctors SET name = ?, department = ?, specialty = ?, experience = ?, slots_per_day = ?, weekly_days = ?, is_active = ? WHERE id = ? AND hospital_id = ?");
+                    $stmt->execute([$name, $department, $specialty, $experience, $slotsPerDay, $weeklyDays, $isActive, $docId, $hospitalId]);
+                }
             } else {
                 $newId = 'doc-' . substr(time(), -6);
-                $stmt = $pdo->prepare("INSERT INTO doctors (id, hospital_id, name, department, specialty, experience, fee, weekly_days, slots_per_day, is_active) VALUES (?, ?, ?, ?, ?, ?, 151, ?, ?, ?)");
-                $stmt->execute([$newId, $hospitalId, $name, $department, $specialty, $experience, $weeklyDays, $slotsPerDay, $isActive]);
+                $defaultSlots = json_encode(['09:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM', '12:00 PM - 01:00 PM', '02:00 PM - 03:00 PM', '03:00 PM - 04:00 PM', '04:00 PM - 05:00 PM']);
+                $stmt = $pdo->prepare("INSERT INTO doctors (id, hospital_id, name, department, specialty, experience, fee, weekly_days, slots_per_day, available_slots, is_active) VALUES (?, ?, ?, ?, ?, ?, 151, ?, ?, ?, ?)");
+                $stmt->execute([$newId, $hospitalId, $name, $department, $specialty, $experience, $weeklyDays, $slotsPerDay, $defaultSlots, $isActive]);
             }
             echo json_encode(['success' => true]);
         } catch (Exception $e) {

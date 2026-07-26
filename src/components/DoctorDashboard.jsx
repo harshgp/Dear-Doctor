@@ -32,11 +32,13 @@ export default function DoctorDashboard() {
   // Availability schedule local inputs state
   const [docDays, setDocDays] = useState([]);
   const [docSlots, setDocSlots] = useState(8);
+  const [docSlotsList, setDocSlotsList] = useState([]);
 
   useEffect(() => {
     if (activeDoctor) {
       setDocDays(activeDoctor.weeklyDays || []);
       setDocSlots(activeDoctor.slotsPerDay || 8);
+      setDocSlotsList(activeDoctor.availableSlots || ['09:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM', '12:00 PM - 01:00 PM', '02:00 PM - 03:00 PM', '03:00 PM - 04:00 PM', '04:00 PM - 05:00 PM']);
     }
   }, [selectedDoctorId, activeDoctor]);
 
@@ -45,7 +47,8 @@ export default function DoctorDashboard() {
     if (!activeDoctor) return;
     editDoctor(activeDoctor.hospitalId, activeDoctor.id, {
       weeklyDays: docDays,
-      slotsPerDay: parseInt(docSlots, 10)
+      slotsPerDay: parseInt(docSlots, 10),
+      availableSlots: docSlotsList
     });
     alert(t('Schedule updated successfully!'));
   };
@@ -232,6 +235,32 @@ export default function DoctorDashboard() {
                   </div>
                 </div>
 
+                <div className="form-group" style={{ marginTop: '14px' }}>
+                  <label className="form-label" style={{ marginBottom: '8px' }}>{t('Available Time Slots')}</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {['09:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM', '12:00 PM - 01:00 PM', '02:00 PM - 03:00 PM', '03:00 PM - 04:00 PM', '04:00 PM - 05:00 PM'].map((slot) => {
+                      const isChecked = docSlotsList.includes(slot);
+                      return (
+                        <label key={slot} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '14px', cursor: 'pointer' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={isChecked}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setDocSlotsList([...docSlotsList, slot]);
+                              } else {
+                                setDocSlotsList(docSlotsList.filter(s => s !== slot));
+                              }
+                            }}
+                            style={{ width: '16px', height: '16px' }}
+                          />
+                          {slot}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '16px' }}>
                   {t('Save Schedule')}
                 </button>
@@ -246,7 +275,7 @@ export default function DoctorDashboard() {
               {t('Display Preferences')}
             </h3>
             <div className="flex-between" style={{ marginBottom: '16px' }}>
-              <span style={{ fontSize: '14px', fontWeight: '500' }}>{t('Dark Mode')}</span>
+              <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-main)' }}>{t('Dark Mode')}</span>
               <button
                 type="button"
                 className="btn-secondary"

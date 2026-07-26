@@ -63,6 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     fee INT NOT NULL,
                     weekly_days TEXT NOT NULL,
                     slots_per_day INT NOT NULL,
+                    available_slots TEXT NULL,
                     is_active TINYINT(1) NOT NULL DEFAULT 1,
                     FOREIGN KEY (hospital_id) REFERENCES hospitals(id) ON DELETE CASCADE
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",

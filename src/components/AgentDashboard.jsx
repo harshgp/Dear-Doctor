@@ -61,6 +61,19 @@ export default function AgentDashboard() {
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedSlot, setSelectedSlot] = useState('10:00 AM - 11:00 AM');
 
+  // Auto-set first available slot when doctor changes
+  useEffect(() => {
+    if (selectedDoctorId) {
+      const activeDoc = hospitals.flatMap(h => h.doctors).find(d => d.id === selectedDoctorId);
+      if (activeDoc) {
+        const slots = activeDoc.availableSlots && activeDoc.availableSlots.length > 0
+          ? activeDoc.availableSlots
+          : ['09:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM', '12:00 PM - 01:00 PM', '02:00 PM - 03:00 PM', '03:00 PM - 04:00 PM', '04:00 PM - 05:00 PM'];
+        setSelectedSlot(slots[0]);
+      }
+    }
+  }, [selectedDoctorId, hospitals]);
+
   // Modal Payments
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentType, setPaymentType] = useState('recharge');
@@ -683,11 +696,9 @@ export default function AgentDashboard() {
                             value={selectedSlot}
                             onChange={(e) => setSelectedSlot(e.target.value)}
                           >
-                            <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM</option>
-                            <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
-                            <option value="11:00 AM - 12:00 PM">11:00 PM - 12:00 PM</option>
-                            <option value="12:00 PM - 01:00 PM">12:00 PM - 01:00 PM</option>
-                            <option value="04:00 PM - 05:00 PM">04:00 PM - 05:00 PM</option>
+                            {(activeDoc.availableSlots && activeDoc.availableSlots.length > 0 ? activeDoc.availableSlots : ['09:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM', '12:00 PM - 01:00 PM', '02:00 PM - 03:00 PM', '03:00 PM - 04:00 PM', '04:00 PM - 05:00 PM']).map((slot) => (
+                              <option key={slot} value={slot}>{slot}</option>
+                            ))}
                           </select>
                         </div>
                       </div>
@@ -779,7 +790,7 @@ export default function AgentDashboard() {
                 {t('Display Preferences')}
               </h3>
               <div className="flex-between" style={{ marginBottom: '16px' }}>
-                <span style={{ fontSize: '14px', fontWeight: '500' }}>{t('Dark Mode')}</span>
+                <span style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-main)' }}>{t('Dark Mode')}</span>
                 <button
                   type="button"
                   className="btn-secondary"

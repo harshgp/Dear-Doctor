@@ -19,6 +19,7 @@ const initialHospitals = [
         fee: 151,
         weeklyDays: ['Mon', 'Wed', 'Fri'],
         slotsPerDay: 10,
+        availableSlots: ['09:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM', '12:00 PM - 01:00 PM', '02:00 PM - 03:00 PM', '03:00 PM - 04:00 PM', '04:00 PM - 05:00 PM'],
         isActive: true
       },
       {
@@ -30,6 +31,7 @@ const initialHospitals = [
         fee: 151,
         weeklyDays: ['Tue', 'Thu', 'Sat'],
         slotsPerDay: 8,
+        availableSlots: ['09:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM', '12:00 PM - 01:00 PM', '02:00 PM - 03:00 PM', '03:00 PM - 04:00 PM', '04:00 PM - 05:00 PM'],
         isActive: true
       },
       {
@@ -41,6 +43,7 @@ const initialHospitals = [
         fee: 151,
         weeklyDays: ['Mon', 'Tue', 'Thu'],
         slotsPerDay: 6,
+        availableSlots: ['09:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM', '12:00 PM - 01:00 PM', '02:00 PM - 03:00 PM', '03:00 PM - 04:00 PM', '04:00 PM - 05:00 PM'],
         isActive: true
       }
     ]
@@ -61,6 +64,7 @@ const initialHospitals = [
         fee: 151,
         weeklyDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
         slotsPerDay: 12,
+        availableSlots: ['09:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM', '12:00 PM - 01:00 PM', '02:00 PM - 03:00 PM', '03:00 PM - 04:00 PM', '04:00 PM - 05:00 PM'],
         isActive: true
       },
       {
@@ -72,6 +76,7 @@ const initialHospitals = [
         fee: 151,
         weeklyDays: ['Wed', 'Fri', 'Sat'],
         slotsPerDay: 8,
+        availableSlots: ['09:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM', '12:00 PM - 01:00 PM', '02:00 PM - 03:00 PM', '03:00 PM - 04:00 PM', '04:00 PM - 05:00 PM'],
         isActive: true
       }
     ]
@@ -815,6 +820,7 @@ export const AppProvider = ({ children }) => {
             id: `doc-${Date.now()}`,
             isActive: true,
             fee: 151,
+            availableSlots: ['09:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM', '12:00 PM - 01:00 PM', '02:00 PM - 03:00 PM', '03:00 PM - 04:00 PM', '04:00 PM - 05:00 PM'],
             ...newDoc
           };
           return { ...hosp, doctors: [...hosp.doctors, docToAdd] };
@@ -839,7 +845,8 @@ export const AppProvider = ({ children }) => {
           experience: updatedFields.experience,
           slotsPerDay: updatedFields.slotsPerDay,
           weeklyDays: updatedFields.weeklyDays,
-          isActive: updatedFields.isActive ? 1 : 0
+          isActive: updatedFields.isActive ? 1 : 0,
+          availableSlots: updatedFields.availableSlots
         })
       })
       .then((res) => res.json())
