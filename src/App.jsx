@@ -1,117 +1,386 @@
-import React, { useState } from 'react';
-import { AppProvider } from './context/AppContext';
+import React, { useState, useContext } from 'react';
+import { AppProvider, AppContext } from './context/AppContext';
 import AdminDashboard from './components/AdminDashboard';
 import DoctorDashboard from './components/DoctorDashboard';
 import AgentDashboard from './components/AgentDashboard';
-import { Shield, Stethoscope, UserCheck, Signal, SignalHigh } from 'lucide-react';
+import SuperadminDashboard from './components/SuperadminDashboard';
+import { 
+  Shield, Stethoscope, UserCheck, Signal, SignalHigh, 
+  LogIn, UserPlus, LogOut, Globe, ShieldAlert 
+} from 'lucide-react';
 
-export default function App() {
-  const [role, setRole] = useState('agent'); // 'admin', 'doctor', 'agent'
+function DashboardContainer() {
+  const { 
+    currentUser, 
+    language, 
+    setLanguage, 
+    loginUser, 
+    registerAgent, 
+    logoutUser, 
+    t 
+  } = useContext(AppContext);
+
   const [lowBandwidth, setLowBandwidth] = useState(false);
+  const [showRegisterView, setShowRegisterView] = useState(false);
+
+  // Login Form states
+  const [loginUsername, setLoginUsername] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
+
+  // Agent Register Form states
+  const [regName, setRegName] = useState('');
+  const [regPhone, setRegPhone] = useState('');
+  const [regVillage, setRegVillage] = useState('');
+  const [regPassword, setRegPassword] = useState('');
+  const [regSuccessMessage, setRegSuccessMessage] = useState('');
+  const [regErrorMessage, setRegErrorMessage] = useState('');
+
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    setLoginError('');
+    loginUser(loginUsername, loginPassword).then((res) => {
+      if (!res.success) {
+        setLoginError(res.message);
+      }
+    });
+  };
+
+  const handleRegisterSubmit = (e) => {
+    e.preventDefault();
+    setRegSuccessMessage('');
+    setRegErrorMessage('');
+    
+    registerAgent(regName, regPhone, regVillage, regPassword).then((res) => {
+      if (res.success) {
+        setRegSuccessMessage(res.message);
+        // Clear fields
+        setRegName('');
+        setRegPhone('');
+        setRegVillage('');
+        setRegPassword('');
+      } else {
+        setRegErrorMessage(res.message);
+      }
+    });
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'gu' : 'en');
+  };
 
   return (
-    <AppProvider>
-      <div className={`mobile-container ${lowBandwidth ? 'low-bandwidth' : ''}`}>
-        
-        {/* Header Bar */}
-        <header className="app-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <div style={{ 
-              background: 'var(--primary-color)', 
-              color: '#ffffff', 
-              padding: '6px', 
+    <div className={`mobile-container ${lowBandwidth ? 'low-bandwidth' : ''}`}>
+      
+      {/* Header Bar */}
+      <header className="app-header">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ 
+            background: 'var(--primary-color)', 
+            color: '#ffffff', 
+            padding: '6px', 
+            borderRadius: '8px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Stethoscope size={18} />
+          </div>
+          <div>
+            <h1 style={{ fontSize: '15px', fontWeight: '700', letterSpacing: '-0.3px' }}>
+              {t('Dear Doctor')}
+            </h1>
+            <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>
+              {t('North Gujarat Network')}
+            </div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* English / Gujarati toggle */}
+          <button 
+            type="button" 
+            onClick={toggleLanguage}
+            style={{
+              background: 'var(--primary-light)',
+              border: '1px solid var(--border-color)',
+              fontSize: '11px',
+              fontWeight: '700',
+              color: 'var(--primary-color)',
+              cursor: 'pointer',
+              padding: '6px 10px',
               borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
-            }}>
-              <Stethoscope size={18} />
-            </div>
-            <div>
-              <h1 style={{ fontSize: '15px', fontWeight: '700', letterSpacing: '-0.3px' }}>Dear Doctor</h1>
-              <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>North Gujarat Network</div>
-            </div>
-          </div>
-
-          {/* Low Bandwidth Toggle Button */}
-          <button 
-            type="button" 
-            onClick={() => setRole(role === 'agent' ? 'doctor' : role === 'doctor' ? 'admin' : 'agent')}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              fontSize: '11px',
-              fontWeight: '600',
-              color: 'var(--primary-color)',
-              cursor: 'pointer',
-              textDecoration: 'underline'
+              gap: '4px'
             }}
           >
-            Switch Role
+            <Globe size={12} />
+            {language === 'en' ? 'ગુજરાતી' : 'English'}
           </button>
-        </header>
 
-        {/* Role Tab Switcher Simulation */}
-        <div className="role-tab-bar">
-          <div 
-            className={`role-tab ${role === 'agent' ? 'active' : ''}`}
-            onClick={() => setRole('agent')}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-              <UserCheck size={14} /> Agent
-            </span>
-          </div>
-          <div 
-            className={`role-tab ${role === 'doctor' ? 'active' : ''}`}
-            onClick={() => setRole('doctor')}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-              <Stethoscope size={14} /> Doctor
-            </span>
-          </div>
-          <div 
-            className={`role-tab ${role === 'admin' ? 'active' : ''}`}
-            onClick={() => setRole('admin')}
-          >
-            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-              <Shield size={14} /> Admin
-            </span>
-          </div>
+          {currentUser && (
+            <button 
+              type="button" 
+              onClick={logoutUser}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--danger)',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
+              <LogOut size={16} />
+            </button>
+          )}
         </div>
+      </header>
 
-        {/* Low-Bandwidth Mode Selector Alert */}
-        <div style={{ padding: '0 20px', marginBottom: '8px' }}>
-          <div 
-            onClick={() => setLowBandwidth(!lowBandwidth)}
-            style={{ 
-              background: lowBandwidth ? '#f1f5f9' : '#e0eafc',
-              border: '1px solid rgba(0, 102, 204, 0.08)',
-              padding: '8px 12px', 
-              borderRadius: '12px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'space-between',
-              cursor: 'pointer',
-              fontSize: '12px'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-main)' }}>
-              {lowBandwidth ? <Signal size={14} /> : <SignalHigh size={14} style={{ color: 'var(--primary-color)' }} />}
-              <span>{lowBandwidth ? 'Low-Bandwidth Mode: Active' : 'Speed Optimizer: On 4G/5G'}</span>
+      {/* Speed Optimizer Bandwidth alert */}
+      <div style={{ padding: '8px 20px 0' }}>
+        <div 
+          onClick={() => setLowBandwidth(!lowBandwidth)}
+          style={{ 
+            background: lowBandwidth ? '#f1f5f9' : '#e0eafc',
+            border: '1px solid rgba(0, 102, 204, 0.08)',
+            padding: '6px 12px', 
+            borderRadius: '12px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between',
+            cursor: 'pointer',
+            fontSize: '11px'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-main)' }}>
+            <Signal size={12} />
+            <span>{lowBandwidth ? '2G/3G Optimizer Mode: Active' : 'Speed Optimizer: On 4G/5G'}</span>
+          </div>
+          <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--primary-color)' }}>
+            {lowBandwidth ? 'Disable' : 'Optimize'}
+          </span>
+        </div>
+      </div>
+
+      {/* Main Content Render area */}
+      <main className="main-content">
+        {!currentUser ? (
+          /* Login & Registration Portal */
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '20px' }}>
+            
+            {/* Logo / Splash brand details */}
+            <div className="text-center" style={{ padding: '20px 0 10px' }}>
+              <div style={{ 
+                width: '64px', 
+                height: '64px', 
+                background: 'var(--primary-light)', 
+                color: 'var(--primary-color)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 12px'
+              }}>
+                <Stethoscope size={36} />
+              </div>
+              <h2 style={{ fontSize: '20px', fontWeight: '700' }}>{t('Dear Doctor')}</h2>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Healthcare booking network for North Gujarat villages</p>
             </div>
-            <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--primary-color)' }}>
-              {lowBandwidth ? 'Disable' : 'Enable 2G/3G'}
-            </span>
+
+            {showRegisterView ? (
+              /* Agent registration request form */
+              <div className="ios-glass-card">
+                <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <UserPlus size={18} style={{ color: 'var(--primary-color)' }} />
+                  Agent Registration
+                </h3>
+
+                {regSuccessMessage && (
+                  <div style={{ background: 'var(--success-light)', color: 'var(--success)', padding: '12px', borderRadius: '12px', fontSize: '13px', marginBottom: '16px' }}>
+                    {regSuccessMessage}
+                  </div>
+                )}
+
+                {regErrorMessage && (
+                  <div style={{ background: 'var(--danger-light)', color: 'var(--danger)', padding: '12px', borderRadius: '12px', fontSize: '13px', marginBottom: '16px' }}>
+                    {regErrorMessage}
+                  </div>
+                )}
+
+                <form onSubmit={handleRegisterSubmit}>
+                  <div className="form-group">
+                    <label className="form-label">Full Name</label>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      value={regName} 
+                      onChange={(e) => setRegName(e.target.value)}
+                      placeholder="e.g. Karan Patel"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Assigned Village</label>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      value={regVillage} 
+                      onChange={(e) => setRegVillage(e.target.value)}
+                      placeholder="e.g. Visnagar Rural"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Phone Number</label>
+                    <input 
+                      type="tel" 
+                      className="form-control" 
+                      value={regPhone} 
+                      onChange={(e) => setRegPhone(e.target.value)}
+                      placeholder="10-digit mobile number"
+                      pattern="[0-9]{10}"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Password</label>
+                    <input 
+                      type="password" 
+                      className="form-control" 
+                      value={regPassword} 
+                      onChange={(e) => setRegPassword(e.target.value)}
+                      placeholder="Set login password"
+                      required
+                    />
+                  </div>
+
+                  <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '8px' }}>
+                    Submit Registration Request
+                  </button>
+
+                  <div className="text-center" style={{ marginTop: '16px' }}>
+                    <button 
+                      type="button" 
+                      className="btn-outline" 
+                      style={{ fontSize: '12px', border: 'none' }}
+                      onClick={() => setShowRegisterView(false)}
+                    >
+                      Already registered? Login here
+                    </button>
+                  </div>
+                </form>
+              </div>
+            ) : (
+              /* Login Portal form */
+              <div className="ios-glass-card">
+                <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <LogIn size={18} style={{ color: 'var(--primary-color)' }} />
+                  Secure Login
+                </h3>
+
+                {loginError && (
+                  <div style={{ background: 'var(--danger-light)', color: 'var(--danger)', padding: '10px 14px', borderRadius: '12px', fontSize: '13px', marginBottom: '14px' }}>
+                    {loginError}
+                  </div>
+                )}
+
+                <form onSubmit={handleLoginSubmit}>
+                  <div className="form-group">
+                    <label className="form-label">Username / Code / Phone</label>
+                    <input 
+                      type="text" 
+                      className="form-control" 
+                      value={loginUsername} 
+                      onChange={(e) => setLoginUsername(e.target.value)}
+                      placeholder="Agent Code or Admin Username"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label">Password</label>
+                    <input 
+                      type="password" 
+                      className="form-control" 
+                      value={loginPassword} 
+                      onChange={(e) => setLoginPassword(e.target.value)}
+                      placeholder="Enter password"
+                      required
+                    />
+                  </div>
+
+                  <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '8px' }}>
+                    Login to Dashboard
+                  </button>
+
+                  <div className="text-center" style={{ marginTop: '16px' }}>
+                    <button 
+                      type="button" 
+                      className="btn-outline" 
+                      style={{ fontSize: '12px', border: 'none' }}
+                      onClick={() => setShowRegisterView(true)}
+                    >
+                      Apply as New Village Agent
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Simulated Roles Credentials help box */}
+            <div className="alert-info-box">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600', fontSize: '12px', marginBottom: '6px' }}>
+                <ShieldAlert size={14} style={{ color: 'var(--primary-color)' }} />
+                Demo Credentials Helper
+              </div>
+              <div style={{ fontSize: '11px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <div>&bull; <strong>Superadmin:</strong> <code>superadmin</code> / <code>superadmin</code></div>
+                <div>&bull; <strong>Hospital Admin:</strong> <code>admin</code> / <code>admin</code></div>
+                <div>&bull; <strong>Doctor Cabin:</strong> <code>doctor</code> / <code>doctor</code></div>
+                <div>&bull; <strong>Approved Agent:</strong> <code>AGT-799</code> / <code>agent</code></div>
+                <div>&bull; <strong>Pending Agent:</strong> <code>AGT-802</code> / <code>agent</code> (locks access)</div>
+              </div>
+            </div>
+
           </div>
-        </div>
+        ) : (
+          /* Render Active Role Dashboard */
+          <>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', background: '#ffffff', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+              <div style={{ 
+                background: 'var(--primary-light)', 
+                color: 'var(--primary-color)', 
+                padding: '4px', 
+                borderRadius: '6px',
+                fontSize: '11px',
+                fontWeight: '700',
+                textTransform: 'uppercase'
+              }}>
+                {currentUser.role}
+              </div>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                Session: <strong style={{ color: 'var(--text-main)' }}>{currentUser.name}</strong>
+              </div>
+            </div>
 
-        {/* Main Dashboard Render Container */}
-        <main className="main-content">
-          {role === 'agent' && <AgentDashboard />}
-          {role === 'doctor' && <DoctorDashboard />}
-          {role === 'admin' && <AdminDashboard />}
-        </main>
+            {currentUser.role === 'agent' && <AgentDashboard />}
+            {currentUser.role === 'doctor' && <DoctorDashboard />}
+            {currentUser.role === 'admin' && <AdminDashboard />}
+            {currentUser.role === 'superadmin' && <SuperadminDashboard />}
+          </>
+        )}
+      </main>
 
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AppProvider>
+      <div className="desktop-wrapper">
+        <DashboardContainer />
       </div>
     </AppProvider>
   );

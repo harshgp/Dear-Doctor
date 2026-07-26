@@ -3,15 +3,15 @@
 :root {
   --bg-primary: #f2f5f9;
   --bg-gradient: linear-gradient(135deg, #eef2f7 0%, #e0e8f5 100%);
-  --panel-bg: rgba(255, 255, 255, 0.8);
+  --panel-bg: rgba(255, 255, 255, 0.85);
   --panel-bg-solid: #ffffff;
   --primary-color: #0066cc;
   --primary-light: rgba(0, 102, 204, 0.08);
-  --primary-glow: rgba(0, 102, 204, 0.25);
+  --primary-glow: rgba(0, 102, 204, 0.2);
   --border-color: rgba(0, 102, 204, 0.12);
-  --border-light: rgba(255, 255, 255, 0.6);
+  --border-light: rgba(255, 255, 255, 0.7);
   --text-main: #1d1d1f;
-  --text-muted: #86868b;
+  --text-muted: #6e6e73;
   --text-white: #ffffff;
   --success: #34c759;
   --success-light: rgba(52, 199, 89, 0.1);
@@ -19,8 +19,8 @@
   --warning-light: rgba(255, 149, 0, 0.1);
   --danger: #ff3b30;
   --danger-light: rgba(255, 59, 48, 0.1);
-  --card-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
-  --modal-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  --card-shadow: 0 8px 32px rgba(0, 102, 204, 0.04);
+  --modal-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
   --radius-sm: 8px;
   --radius-md: 16px;
   --radius-lg: 24px;
@@ -28,7 +28,7 @@
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* Low-Bandwidth Override styles */
+/* Low-Bandwidth Mode overrides */
 .low-bandwidth {
   --bg-gradient: #ffffff;
   --bg-primary: #ffffff;
@@ -67,6 +67,55 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 600;
 }
 
+/* Responsive Desktop centering frame */
+.desktop-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+  background: radial-gradient(circle at 50% 50%, #f6f8fb 0%, #e2eaf5 100%);
+}
+
+.mobile-container {
+  width: 100%;
+  max-width: 480px;
+  height: 92vh;
+  min-height: 640px;
+  background: var(--bg-gradient);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0, 102, 204, 0.08);
+  border-radius: 32px;
+  border: 4px solid #ffffff;
+  overflow: hidden;
+}
+
+@media (max-width: 480px) {
+  .desktop-wrapper {
+    padding: 0;
+    background: none;
+  }
+  .mobile-container {
+    max-width: 100%;
+    height: 100vh;
+    min-height: 100vh;
+    border-radius: 0;
+    border: none;
+  }
+}
+
+/* Hide scrollbar utility but maintain scrolling function */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE 10+ */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+
 /* iOS Glassmorphism Panels */
 .ios-glass {
   background: var(--panel-bg);
@@ -89,9 +138,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .ios-glass-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   border-color: var(--border-color);
-  box-shadow: 0 12px 36px rgba(0, 102, 204, 0.06);
+  box-shadow: 0 10px 30px rgba(0, 102, 204, 0.05);
 }
 
 /* Custom Buttons matching iOS style */
@@ -109,14 +158,14 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 4px 14px rgba(0, 102, 204, 0.25);
+  box-shadow: 0 4px 14px rgba(0, 102, 204, 0.22);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primary:hover {
   background: #0052a3;
-  transform: scale(1.02);
-  box-shadow: 0 6px 20px rgba(0, 102, 204, 0.35);
+  transform: scale(1.01);
+  box-shadow: 0 6px 18px rgba(0, 102, 204, 0.3);
 }
 
 .btn-primary:active {
@@ -147,18 +196,14 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-secondary:hover {
-  background: rgba(0, 102, 204, 0.14);
-  transform: scale(1.02);
-}
-
-.btn-secondary:active {
-  transform: scale(0.98);
+  background: rgba(0, 102, 204, 0.12);
+  transform: scale(1.01);
 }
 
 .btn-danger {
   background: var(--danger-light);
   color: var(--danger);
-  border: 1px solid rgba(255, 59, 48, 0.2);
+  border: 1px solid rgba(255, 59, 48, 0.15);
   padding: 12px 24px;
   border-radius: var(--radius-md);
   font-family: var(--font-title);
@@ -169,12 +214,12 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s ease;
 }
 
 .btn-danger:hover {
-  background: rgba(255, 59, 48, 0.15);
-  transform: scale(1.02);
+  background: rgba(255, 59, 48, 0.12);
+  transform: scale(1.01);
 }
 
 .btn-outline {
@@ -200,7 +245,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .form-label {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
@@ -212,7 +257,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 12px 16px;
   border-radius: var(--radius-md);
   border: 1px solid rgba(0, 102, 204, 0.15);
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.85);
   font-family: var(--font-body);
   font-size: 15px;
   color: var(--text-main);
@@ -269,12 +314,12 @@ h1, h2, h3, h4, h5, h6 {
 
 /* App Header Styling */
 .app-header {
-  height: 64px;
+  height: 68px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
-  background: rgba(255, 255, 255, 0.7);
+  padding: 0 20px;
+  background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-color);
@@ -304,17 +349,17 @@ h1, h2, h3, h4, h5, h6 {
   background: #ffffff;
   border-radius: var(--radius-lg);
   box-shadow: var(--modal-shadow);
-  max-width: 500px;
+  max-width: 480px;
   width: 100%;
-  max-height: 90vh;
+  max-height: 85vh;
   overflow-y: auto;
   border: 1px solid var(--border-color);
-  animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes modalSlideUp {
   from {
-    transform: translateY(20px);
+    transform: translateY(15px);
     opacity: 0;
   }
   to {
@@ -323,50 +368,9 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* Mobile responsive constraints */
-.mobile-container {
-  max-width: 480px;
-  margin: 0 auto;
-  min-height: 100vh;
-  background: var(--bg-gradient);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.05);
-}
-
-/* Role Switcher styling */
-.role-tab-bar {
-  display: flex;
-  background: rgba(120, 120, 128, 0.08);
-  padding: 4px;
-  border-radius: var(--radius-md);
-  margin: 16px 20px 8px;
-}
-
-.role-tab {
-  flex: 1;
-  text-align: center;
-  padding: 10px;
-  font-family: var(--font-title);
-  font-weight: 600;
-  font-size: 14px;
-  color: var(--text-muted);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  user-select: none;
-}
-
-.role-tab.active {
-  background: #ffffff;
-  color: var(--primary-color);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-}
-
 /* Custom Bottom Navigation Bar for Mobile */
 .bottom-nav {
-  position: fixed;
+  position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
@@ -407,6 +411,50 @@ h1, h2, h3, h4, h5, h6 {
 .main-content {
   flex: 1;
   padding: 16px 20px 92px; /* space for bottom nav */
+  overflow-y: auto;
+}
+
+/* Microphone pulse recording state */
+.mic-pulse {
+  background: rgba(255, 59, 48, 0.1);
+  color: #ff3b30;
+  animation: pulseMic 1.2s infinite alternate;
+}
+
+@keyframes pulseMic {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(255, 59, 48, 0.3);
+  }
+  100% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 10px rgba(255, 59, 48, 0);
+  }
+}
+
+/* SVG Chart styles */
+.chart-line {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawChart 2.5s ease forwards;
+}
+
+@keyframes drawChart {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Help panel info alerts */
+.alert-info-box {
+  background: rgba(0, 102, 204, 0.05);
+  border: 1px dashed rgba(0, 102, 204, 0.2);
+  color: var(--text-main);
+  padding: 14px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 16px;
 }
 
 /* Helper flex utilities */

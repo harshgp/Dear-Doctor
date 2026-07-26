@@ -41,16 +41,23 @@ if ($action === 'check') {
 
 if ($action === 'get_data') {
     try {
-        // Fetch Agent Info (assuming single agent AGT-799 for simulation simplicity)
-        $stmt = $pdo->query("SELECT * FROM agents WHERE code = 'AGT-799' LIMIT 1");
+        $agentCode = $_GET['agent_code'] ?? 'AGT-799';
+
+        // Fetch Current Agent Info
+        $stmt = $pdo->prepare("SELECT * FROM agents WHERE code = ? LIMIT 1");
+        $stmt->execute([$agentCode]);
         $agent = $stmt->fetch();
         
-        if (!$agent) {
+        if (!$agent && $agentCode === 'AGT-799') {
             // Seed default agent if missing
-            $pdo->query("INSERT INTO agents (name, village, phone, code, wallet_balance) VALUES ('Dinesh Chaudhary', 'Gozaria Village', '9876543210', 'AGT-799', 525.00)");
+            $pdo->query("INSERT INTO agents (name, village, phone, code, password, status, wallet_balance) VALUES ('Dinesh Chaudhary', 'Gozaria Village', '9876543210', 'AGT-799', 'agent', 'approved', 525.00)");
             $stmt = $pdo->query("SELECT * FROM agents WHERE code = 'AGT-799' LIMIT 1");
             $agent = $stmt->fetch();
         }
+
+        // Fetch All Agents for Superadmin Dashboard
+        $stmt = $pdo->query("SELECT * FROM agents ORDER BY id DESC");
+        $allAgents = $stmt->fetchAll();
 
         // Fetch Transactions
         $stmt = $pdo->query("SELECT * FROM transactions ORDER BY id DESC");
@@ -101,6 +108,8 @@ if ($action === 'get_data') {
                 'patientName' => $app['patient_name'],
                 'patientPhone' => $app['patient_phone'],
                 'patientAge' => (int)$app['patient_age'],
+                'patientGender' => $app['patient_gender'] ?? 'Male',
+                'problemDescription' => $app['problem_description'] ?? '',
                 'hospitalId' => $app['hospital_id'],
                 'hospitalName' => $app['hospital_name'],
                 'hospitalCity' => $app['hospital_city'],
@@ -122,13 +131,24 @@ if ($action === 'get_data') {
 
         echo json_encode([
             'success' => true,
-            'agent_profile' => [
+            'agent_profile' => $agent ? [
                 'name' => $agent['name'],
                 'village' => $agent['village'],
                 'phone' => $agent['phone'],
                 'code' => $agent['code']
-            ],
-            'wallet_balance' => (int)$agent['wallet_balance'],
+            ] : null,
+            'wallet_balance' => $agent ? (int)$agent['wallet_balance'] : 0,
+            'all_agents' => array_map(function($a) {
+                return [
+                    'id' => $a['id'],
+                    'name' => $a['name'],
+                    'village' => $a['village'],
+                    'phone' => $a['phone'],
+                    'code' => $a['code'],
+                    'status' => $a['status'],
+                    'wallet_balance' => (int)$a['wallet_balance']
+                ];
+            }, $allAgents),
             'transactions' => array_map(function($tx) {
                 return [
                     'id' => $tx['id'],
@@ -151,7 +171,157 @@ if ($action === 'get_data') {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
     
+    if ($action === 'login') {
+        $username = $input['username'] ?? '';
+        $password = $input['password'] ?? '';
+
+        if (empty($username) || empty($password)) {
+            echo json_encode(['success' => false, 'message' => 'Credentials required']);
+            exit;
+        }
+
+        // Check hardcoded logins
+        if ($username === 'superadmin' && $password === 'superadmin') {
+            echo json_encode([
+                'success' => true,
+                'role' => 'superadmin',
+                'user' => ['name' => 'Superadmin Desk', 'code' => 'SUPERADMIN']
+            ]);
+            exit;
+        }
+
+        if ($username === 'admin' && $password === 'admin') {
+            echo json_encode([
+                'success' => true,
+                'role' => 'admin',
+                'user' => ['name' => 'Hospital Admin', 'code' => 'ADMIN']
+            ]);
+            exit;
+        }
+
+        if ($username === 'doctor' && $password === 'doctor') {
+            echo json_encode([
+                'success' => true,
+                'role' => 'doctor',
+                'user' => ['name' => 'Dr. Kirit Patel', 'code' => 'doc-1']
+            ]);
+            exit;
+        }
+
+        // Check Agent Login in database
+        try {
+            $stmt = $pdo->prepare("SELECT * FROM agents WHERE (code = ? OR phone = ?)");
+            $stmt->execute([$username, $username]);
+            $agent = $stmt->fetch();
+
+            if ($agent && $agent['password'] === $password) {
+                if ($agent['status'] === 'pending') {
+                    echo json_encode(['success' => false, 'message' => 'Agent account registration is pending Superadmin approval.']);
+                } else {
+                    echo json_encode([
+                        'success' => true,
+                        'role' => 'agent',
+                        'user' => [
+                            'name' => $agent['name'],
+                            'code' => $agent['code'],
+                            'village' => $agent['village'],
+                            'phone' => $agent['phone']
+                        ]
+                    ]);
+                }
+            } else {
+                echo json_encode(['success' => false, 'message' => 'Invalid username or password']);
+            }
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    if ($action === 'register_agent') {
+        $name = $input['name'] ?? '';
+        $phone = $input['phone'] ?? '';
+        $village = $input['village'] ?? '';
+        $password = $input['password'] ?? 'agent';
+
+        if (empty($name) || empty($phone) || empty($village)) {
+            echo json_encode(['success' => false, 'message' => 'All details are required']);
+            exit;
+        }
+
+        try {
+            // Check if phone already registered
+            $stmt = $pdo->prepare("SELECT COUNT(*) FROM agents WHERE phone = ?");
+            $stmt->execute([$phone]);
+            if ($stmt->fetchColumn() > 0) {
+                echo json_encode(['success' => false, 'message' => 'Phone number already registered']);
+                exit;
+            }
+
+            // Generate unique agent code
+            $agentCount = (int)$pdo->query("SELECT COUNT(*) FROM agents")->fetchColumn();
+            $newCode = 'AGT-' . (800 + $agentCount);
+
+            $stmt = $pdo->prepare("INSERT INTO agents (name, village, phone, code, password, status, wallet_balance) VALUES (?, ?, ?, ?, ?, 'pending', 0.00)");
+            $stmt->execute([$name, $village, $phone, $newCode, $password]);
+
+            echo json_encode([
+                'success' => true,
+                'message' => "Registration request submitted. Your Agent Code will be {$newCode}. Please wait for Superadmin activation."
+            ]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    if ($action === 'approve_agent') {
+        $agentId = (int)($input['agentId'] ?? 0);
+        try {
+            $pdo->beginTransaction();
+
+            $stmt = $pdo->prepare("UPDATE agents SET status = 'approved' WHERE id = ?");
+            $stmt->execute([$agentId]);
+
+            // Add welcome bonus
+            $stmt = $pdo->prepare("UPDATE agents SET wallet_balance = wallet_balance + 525.00 WHERE id = ?");
+            $stmt->execute([$agentId]);
+
+            $stmt = $pdo->prepare("SELECT name FROM agents WHERE id = ?");
+            $stmt->execute([$agentId]);
+            $name = $stmt->fetchColumn();
+
+            $stmt = $pdo->prepare("INSERT INTO transactions (date, type, amount, details) VALUES (?, ?, ?, ?)");
+            $stmt->execute([
+                date('Y-m-d'),
+                'credit',
+                525.00,
+                "Activation Bonus for Agent {$name}"
+            ]);
+
+            $pdo->commit();
+            echo json_encode(['success' => true]);
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    if ($action === 'reject_agent') {
+        $agentId = (int)($input['agentId'] ?? 0);
+        try {
+            $stmt = $pdo->prepare("DELETE FROM agents WHERE id = ?");
+            $stmt->execute([$agentId]);
+            echo json_encode(['success' => true]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+        }
+        exit;
+    }
+
     if ($action === 'recharge') {
+        $agentCode = $_GET['agent_code'] ?? 'AGT-799';
         $amount = (int)($input['amount'] ?? 0);
         if ($amount <= 0) {
             echo json_encode(['success' => false, 'message' => 'Invalid recharge amount']);
@@ -165,8 +335,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->beginTransaction();
 
             // Update Agent balance
-            $stmt = $pdo->prepare("UPDATE agents SET wallet_balance = wallet_balance + ? WHERE code = 'AGT-799'");
-            $stmt->execute([$totalCredit]);
+            $stmt = $pdo->prepare("UPDATE agents SET wallet_balance = wallet_balance + ? WHERE code = ?");
+            $stmt->execute([$totalCredit, $agentCode]);
 
             // Log Transaction
             $stmt = $pdo->prepare("INSERT INTO transactions (date, type, amount, details) VALUES (?, ?, ?, ?)");
@@ -178,7 +348,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             $pdo->commit();
-            echo json_encode(['success' => true, 'balance_credited' => $totalCredit]);
+            echo json_encode(['success' => true]);
         } catch (Exception $e) {
             $pdo->rollBack();
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);
@@ -187,9 +357,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'book') {
+        $agentCode = $_GET['agent_code'] ?? 'AGT-799';
         $patientName = $input['patientName'] ?? '';
         $patientPhone = $input['patientPhone'] ?? '';
         $patientAge = (int)($input['patientAge'] ?? 0);
+        $patientGender = $input['patientGender'] ?? 'Male';
+        $problemDescription = $input['problemDescription'] ?? '';
         $hospitalId = $input['hospitalId'] ?? '';
         $doctorId = $input['doctorId'] ?? '';
         $dateStr = $input['dateStr'] ?? '';
@@ -244,15 +417,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($fee > 0) {
                 if ($useWallet) {
                     // Check agent balance
-                    $stmt = $pdo->query("SELECT wallet_balance FROM agents WHERE code = 'AGT-799' LIMIT 1");
+                    $stmt = $pdo->prepare("SELECT wallet_balance FROM agents WHERE code = ? LIMIT 1");
+                    $stmt->execute([$agentCode]);
                     $balance = (int)$stmt->fetch()['wallet_balance'];
                     if ($balance < 151) {
                         throw new Exception('Insufficient wallet balance');
                     }
 
                     // Deduct wallet
-                    $stmt = $pdo->prepare("UPDATE agents SET wallet_balance = wallet_balance - 151 WHERE code = 'AGT-799'");
-                    $stmt->execute();
+                    $stmt = $pdo->prepare("UPDATE agents SET wallet_balance = wallet_balance - 151 WHERE code = ?");
+                    $stmt->execute([$agentCode]);
 
                     $payMethod = 'Wallet';
                     $transactionId = 'pay_wlt_' . substr(time(), -6);
@@ -264,7 +438,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         'debit',
                         151,
                         "Booking for {$patientName} ({$doctor['name']})"
-                      ]);
+                    ]);
                 }
             } else {
                 $payMethod = 'Waived';
@@ -275,7 +449,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $appId = 'TK-' . substr(time(), -6);
 
             // Insert Appointment
-            $stmt = $pdo->prepare("INSERT INTO appointments (id, patient_name, patient_phone, patient_age, hospital_id, hospital_name, hospital_city, hospital_address, doctor_id, doctor_name, department, date, time_slot, status, case_type, fee_paid, payment_method, payment_id, token_number, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO appointments (id, patient_name, patient_phone, patient_age, patient_gender, problem_description, hospital_id, hospital_name, hospital_city, hospital_address, doctor_id, doctor_name, department, date, time_slot, status, case_type, fee_paid, payment_method, payment_id, token_number, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             
             $createdAt = date('Y-m-d H:i:s');
             $stmt->execute([
@@ -283,6 +457,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $patientName,
                 $patientPhone,
                 $patientAge,
+                $patientGender,
+                $problemDescription,
                 $hospitalId,
                 $hospital['name'],
                 $hospital['city'],
@@ -309,6 +485,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'patientName' => $patientName,
                     'patientPhone' => $patientPhone,
                     'patientAge' => $patientAge,
+                    'patientGender' => $patientGender,
+                    'problemDescription' => $problemDescription,
                     'hospitalId' => $hospitalId,
                     'hospitalName' => $hospital['name'],
                     'hospitalCity' => $hospital['city'],
@@ -348,11 +526,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'cancel') {
+        $agentCode = $_GET['agent_code'] ?? 'AGT-799';
         $appId = $input['appointmentId'] ?? '';
         try {
             $pdo->beginTransaction();
 
-            // Fetch booking details
             $stmt = $pdo->prepare("SELECT * FROM appointments WHERE id = ?");
             $stmt->execute([$appId]);
             $app = $stmt->fetch();
@@ -362,10 +540,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
 
             if ($app['status'] !== 'Canceled') {
-                // Refund if paid via wallet
                 if ((int)$app['fee_paid'] > 0 && $app['payment_method'] === 'Wallet') {
-                    $stmt = $pdo->prepare("UPDATE agents SET wallet_balance = wallet_balance + ? WHERE code = 'AGT-799'");
-                    $stmt->execute([$app['fee_paid']]);
+                    $stmt = $pdo->prepare("UPDATE agents SET wallet_balance = wallet_balance + ? WHERE code = ?");
+                    $stmt->execute([$app['fee_paid'], $agentCode]);
 
                     $stmt = $pdo->prepare("INSERT INTO transactions (date, type, amount, details) VALUES (?, ?, ?, ?)");
                     $stmt->execute([
@@ -402,11 +579,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         try {
             if ($docId) {
-                // Update
                 $stmt = $pdo->prepare("UPDATE doctors SET name = ?, department = ?, specialty = ?, experience = ?, slots_per_day = ?, weekly_days = ?, is_active = ? WHERE id = ? AND hospital_id = ?");
                 $stmt->execute([$name, $department, $specialty, $experience, $slotsPerDay, $weeklyDays, $isActive, $docId, $hospitalId]);
             } else {
-                // Insert
                 $newId = 'doc-' . substr(time(), -6);
                 $stmt = $pdo->prepare("INSERT INTO doctors (id, hospital_id, name, department, specialty, experience, fee, weekly_days, slots_per_day, is_active) VALUES (?, ?, ?, ?, ?, ?, 151, ?, ?, ?)");
                 $stmt->execute([$newId, $hospitalId, $name, $department, $specialty, $experience, $weeklyDays, $slotsPerDay, $isActive]);
@@ -419,13 +594,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if ($action === 'profile_update') {
+        $agentCode = $_GET['agent_code'] ?? 'AGT-799';
         $name = $input['name'] ?? '';
         $village = $input['village'] ?? '';
         $phone = $input['phone'] ?? '';
 
         try {
-            $stmt = $pdo->prepare("UPDATE agents SET name = ?, village = ?, phone = ? WHERE code = 'AGT-799'");
-            $stmt->execute([$name, $village, $phone]);
+            $stmt = $pdo->prepare("UPDATE agents SET name = ?, village = ?, phone = ? WHERE code = ?");
+            $stmt->execute([$name, $village, $phone, $agentCode]);
             echo json_encode(['success' => true]);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'message' => $e->getMessage()]);

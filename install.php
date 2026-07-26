@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
             ]);
             
-            // Create database if not exists (if permission allowed, else assume it exists)
+            // Create database if not exists
             $pdo->exec("CREATE DATABASE IF NOT EXISTS `$db_name` CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci");
             $pdo->exec("USE `$db_name`");
 
@@ -32,6 +32,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     village VARCHAR(100) NOT NULL,
                     phone VARCHAR(20) NOT NULL,
                     code VARCHAR(50) UNIQUE NOT NULL,
+                    password VARCHAR(100) NOT NULL DEFAULT 'agent',
+                    status VARCHAR(50) NOT NULL DEFAULT 'pending',
                     wallet_balance DECIMAL(10, 2) NOT NULL DEFAULT 0.00
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 
@@ -70,6 +72,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     patient_name VARCHAR(100) NOT NULL,
                     patient_phone VARCHAR(20) NOT NULL,
                     patient_age INT NOT NULL,
+                    patient_gender VARCHAR(20) NOT NULL DEFAULT 'Male',
+                    problem_description TEXT DEFAULT NULL,
                     hospital_id VARCHAR(50) NOT NULL,
                     hospital_name VARCHAR(150) NOT NULL,
                     hospital_city VARCHAR(100) NOT NULL,
@@ -115,8 +119,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $agentCount = $pdo->query("SELECT COUNT(*) FROM agents")->fetchColumn();
             if ($agentCount == 0) {
-                $pdo->exec("INSERT INTO agents (name, village, phone, code, wallet_balance) VALUES ('Dinesh Chaudhary', 'Gozaria Village', '9876543210', 'AGT-799', 525.00)");
+                // Approved Agent
+                $pdo->exec("INSERT INTO agents (name, village, phone, code, password, status, wallet_balance) VALUES ('Dinesh Chaudhary', 'Gozaria Village', '9876543210', 'AGT-799', 'agent', 'approved', 525.00)");
                 $pdo->exec("INSERT INTO transactions (date, type, amount, details) VALUES ('" . date('Y-m-d') . "', 'credit', 525.00, 'Initial wallet setup (Recharge: 500 + Bonus: 25)')");
+                
+                // Pending Agent
+                $pdo->exec("INSERT INTO agents (name, village, phone, code, password, status, wallet_balance) VALUES ('Karan Patel', 'Visnagar Rural', '9825123456', 'AGT-802', 'agent', 'pending', 0.00)");
             }
 
             // Write config.php
