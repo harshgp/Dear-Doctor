@@ -208,7 +208,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$doctorId, $hospitalId]);
             $doctor = $stmt->fetch();
 
-            if (!$hospital || !doctor) {
+            if (!$hospital || !$doctor) {
                 throw new Exception('Invalid hospital or doctor');
             }
 
