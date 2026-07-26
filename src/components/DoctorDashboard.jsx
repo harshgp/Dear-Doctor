@@ -1,9 +1,9 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../context/AppContext';
 import { User, Phone, CheckCircle, Clock, Check, AlertCircle, LogOut, Calendar, Settings, Sun, Moon } from 'lucide-react';
 
 export default function DoctorDashboard() {
-  const { hospitals, appointments, completeAppointment, logoutUser, theme, toggleTheme, t } = useContext(AppContext);
+  const { hospitals, appointments, completeAppointment, editDoctor, logoutUser, theme, toggleTheme, t } = useContext(AppContext);
   const [activeSubTab, setActiveSubTab] = useState('appointments');
   
   const allDoctors = hospitals.flatMap(hosp => 
@@ -28,6 +28,27 @@ export default function DoctorDashboard() {
   const totalCollections = doctorAppointments
     .filter(app => app.status !== 'Canceled' && app.caseType === 'New Case')
     .reduce((sum, app) => sum + app.feePaid, 0);
+
+  // Availability schedule local inputs state
+  const [docDays, setDocDays] = useState([]);
+  const [docSlots, setDocSlots] = useState(8);
+
+  useEffect(() => {
+    if (activeDoctor) {
+      setDocDays(activeDoctor.weeklyDays || []);
+      setDocSlots(activeDoctor.slotsPerDay || 8);
+    }
+  }, [selectedDoctorId, activeDoctor]);
+
+  const handleSaveSchedule = (e) => {
+    e.preventDefault();
+    if (!activeDoctor) return;
+    editDoctor(activeDoctor.hospitalId, activeDoctor.id, {
+      weeklyDays: docDays,
+      slotsPerDay: parseInt(docSlots, 10)
+    });
+    alert(t('Schedule updated successfully!'));
+  };
 
   return (
     <div className="doctor-dashboard">
@@ -158,6 +179,66 @@ export default function DoctorDashboard() {
       {activeSubTab === 'settings' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
+          {/* Availability Slots Card */}
+          {activeDoctor && (
+            <div className="ios-glass-card">
+              <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Calendar size={16} style={{ color: 'var(--primary-color)' }} />
+                {t('Configure Availability Schedule')}
+              </h3>
+              
+              <form onSubmit={handleSaveSchedule}>
+                <div className="form-group">
+                  <label className="form-label">{t('Daily Capacity Slots')}</label>
+                  <input 
+                    type="number" 
+                    className="form-control" 
+                    value={docSlots} 
+                    onChange={(e) => setDocSlots(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label" style={{ marginBottom: '8px' }}>{t('Weekly Working Days')}</label>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => {
+                      const isSelected = docDays.includes(day);
+                      return (
+                        <button
+                          type="button"
+                          key={day}
+                          onClick={() => {
+                            if (isSelected) {
+                              setDocDays(docDays.filter(d => d !== day));
+                            } else {
+                              setDocDays([...docDays, day]);
+                            }
+                          }}
+                          className={`btn-outline ${isSelected ? 'active' : ''}`}
+                          style={{ 
+                            padding: '6px 12px', 
+                            borderRadius: '8px', 
+                            fontSize: '13px',
+                            background: isSelected ? 'var(--primary-color)' : 'transparent',
+                            color: isSelected ? 'var(--text-white)' : 'var(--text-main)',
+                            borderColor: isSelected ? 'var(--primary-color)' : 'rgba(0,0,0,0.1)'
+                          }}
+                        >
+                          {t(day)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '16px' }}>
+                  {t('Save Schedule')}
+                </button>
+              </form>
+            </div>
+          )}
+
           {/* Display Preferences Switcher */}
           <div className="ios-glass-card">
             <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
