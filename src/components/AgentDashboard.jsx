@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useRef } from 'react';
 import { AppContext } from '../context/AppContext';
 import { 
   User, Phone, Search, Calendar, Wallet, Settings, 
@@ -51,6 +51,9 @@ export default function AgentDashboard() {
 
   // Voice dictation simulation
   const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef(null);
+  const isListeningRef = useRef(false);
+  const simulatorTimeoutRef = useRef(null);
 
   // Suggested match
   const [suggestedPatient, setSuggestedPatient] = useState(null);
@@ -120,7 +123,10 @@ export default function AgentDashboard() {
     setSuggestedPatient(null);
   };
 
-  const triggerVoiceDictation = () => {
+  const startListening = (e) => {
+    if (e) e.preventDefault();
+    if (isListeningRef.current) return;
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       try {
@@ -129,23 +135,27 @@ export default function AgentDashboard() {
         recognition.interimResults = false;
         recognition.maxAlternatives = 1;
 
-        setIsListening(true);
-
         recognition.onresult = (event) => {
           const transcript = event.results[0][0].transcript;
           setProblemText(transcript);
-          setIsListening(false);
         };
 
         recognition.onerror = (event) => {
           console.error("Speech recognition error", event.error);
-          runSpeechSimulator();
+          if (event.error !== 'aborted') {
+            runSpeechSimulator();
+          }
         };
 
         recognition.onend = () => {
           setIsListening(false);
+          isListeningRef.current = false;
+          recognitionRef.current = null;
         };
 
+        recognitionRef.current = recognition;
+        setIsListening(true);
+        isListeningRef.current = true;
         recognition.start();
       } catch (err) {
         console.error("Failed to start speech recognition", err);
@@ -156,9 +166,40 @@ export default function AgentDashboard() {
     }
   };
 
+  const stopListening = (e) => {
+    if (e) e.preventDefault();
+    if (!isListeningRef.current) return;
+
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (err) {
+        console.error("Error stopping recognition", err);
+      }
+    } else {
+      if (simulatorTimeoutRef.current) {
+        clearTimeout(simulatorTimeoutRef.current);
+        simulatorTimeoutRef.current = null;
+        
+        const ailments = [
+          'severe eye pain and irritation',
+          'high fever with body shivering since last night',
+          'knee joint pain and swelling making it hard to walk',
+          'cough, dry throat, and chest congestion for 3 days',
+          'abdominal stomach pain after lunch'
+        ];
+        const randomAilment = ailments[Math.floor(Math.random() * ailments.length)];
+        setProblemText(randomAilment);
+      }
+      setIsListening(false);
+      isListeningRef.current = false;
+    }
+  };
+
   const runSpeechSimulator = () => {
     setIsListening(true);
-    setTimeout(() => {
+    isListeningRef.current = true;
+    simulatorTimeoutRef.current = setTimeout(() => {
       const ailments = [
         'severe eye pain and irritation',
         'high fever with body shivering since last night',
@@ -169,7 +210,9 @@ export default function AgentDashboard() {
       const randomAilment = ailments[Math.floor(Math.random() * ailments.length)];
       setProblemText(randomAilment);
       setIsListening(false);
-    }, 1500);
+      isListeningRef.current = false;
+      simulatorTimeoutRef.current = null;
+    }, 2000);
   };
 
   const filteredHospitals = cityFilter 
@@ -593,18 +636,26 @@ export default function AgentDashboard() {
                       />
                       <button
                         type="button"
-                        onClick={triggerVoiceDictation}
+                        onMouseDown={startListening}
+                        onMouseUp={stopListening}
+                        onMouseLeave={stopListening}
+                        onTouchStart={startListening}
+                        onTouchEnd={stopListening}
                         className={`btn-secondary ${isListening ? 'mic-pulse' : ''}`}
-                        style={{ padding: '10px 14px', borderRadius: '12px' }}
+                        style={{ 
+                          padding: '10px 14px', 
+                          borderRadius: '12px',
+                          cursor: 'pointer',
+                          userSelect: 'none',
+                          touchAction: 'none'
+                        }}
                       >
                         <Mic size={18} />
                       </button>
                     </div>
-                    {isListening && (
-                      <div style={{ fontSize: '11px', color: 'var(--danger)', marginTop: '4px', fontWeight: '600' }}>
-                        {t('Listening')}... {t('Speak now')}
-                      </div>
-                    )}
+                    <div style={{ fontSize: '11px', color: isListening ? 'var(--danger)' : 'var(--text-muted)', marginTop: '4px', fontWeight: '600' }}>
+                      {isListening ? t('listening... release to insert') : t('hold mic to speak (push-to-talk)')}
+                    </div>
                   </div>
                 </div>
               </div>

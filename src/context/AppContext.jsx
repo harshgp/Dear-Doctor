@@ -201,12 +201,15 @@ const guTranslations = {
   'registered phone': 'નોંધાયેલ મોબાઈલ',
   'dealer unique code': 'એજન્ટ કોડ',
   'save profile': 'પ્રોફાઇલ સાચવો',
-  'transaction ledger': 'વ્યવહાર ખાતાવહી',
   'settings & wallet': 'સેટિંગ્સ અને વોલેટ',
   'patient booking': 'નવું બુકિંગ',
   'logout': 'લોગઆઉટ',
   'enabled': 'ચાલુ',
   'disabled': 'બંધ',
+  'hold mic to speak (push-to-talk)': 'બોલવા માટે માઇક દબાવી રાખો',
+  'listening... release to insert': 'સાંભળી રહ્યા છીએ... છોડી દો',
+  'transaction ledger': 'વ્યવહાર ખાતાવહી',
+
 
   // Session & Roles
   'switch role': 'ભૂમિકા બદલો',
