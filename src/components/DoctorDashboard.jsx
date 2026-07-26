@@ -50,7 +50,7 @@ export default function DoctorDashboard() {
 
       {activeDoctor ? (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '20px' }}>
+          <div className="doctor-stats-grid" style={{ marginBottom: '20px' }}>
             <div className="ios-glass-card text-center" style={{ padding: '12px' }}>
               <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--primary-color)' }}>
                 {plannedQueue.length}

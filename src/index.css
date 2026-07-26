@@ -161,6 +161,7 @@ h1, h2, h3, h4, h5, h6 {
 .no-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch; /* Momentum scroll for iOS */
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -186,6 +187,12 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: var(--card-shadow);
   padding: 20px;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (max-width: 767px) {
+  .ios-glass-card {
+    padding: 16px; /* More compact on mobile */
+  }
 }
 
 .ios-glass-card:hover {
@@ -303,7 +310,7 @@ h1, h2, h3, h4, h5, h6 {
   border: 1px solid rgba(0, 102, 204, 0.15);
   background: rgba(255, 255, 255, 0.85);
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: 16px; /* Set to 16px to prevent auto-zooming on iOS focus */
   color: var(--text-main);
   outline: none;
   transition: all 0.2s ease;
@@ -401,6 +408,13 @@ h1, h2, h3, h4, h5, h6 {
   overflow-y: auto;
   border: 1px solid var(--border-color);
   animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 520px) {
+  .modal-content {
+    width: calc(100% - 24px) !important;
+    margin: 12px !important;
+  }
 }
 
 @keyframes modalSlideUp {
@@ -551,3 +565,17 @@ h1, h2, h3, h4, h5, h6 {
 .text-center {
   text-align: center;
 }
+
+.doctor-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 480px) {
+  .doctor-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
