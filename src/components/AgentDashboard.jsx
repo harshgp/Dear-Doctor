@@ -449,7 +449,7 @@ export default function AgentDashboard() {
             <div className="responsive-grid">
               
               {/* Column 1: Patient details input */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: '0' }}>
                 <div className="ios-glass-card">
                   <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <UserPlus size={16} style={{ color: 'var(--primary-color)' }} />
@@ -573,7 +573,7 @@ export default function AgentDashboard() {
               </div>
 
               {/* Column 2: Center/Doctor selection, picker date, & Booking CTA */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: '0' }}>
                 <div className="ios-glass-card">
                   <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <Search size={16} style={{ color: 'var(--primary-color)' }} />
