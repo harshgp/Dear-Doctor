@@ -436,14 +436,6 @@ export default function AgentDashboard() {
               
               {/* Column 1: Patient details input */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div className="ios-glass-card flex-between" style={{ padding: '16px', background: 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)', color: '#ffffff' }}>
-                  <div>
-                    <div style={{ fontSize: '11px', opacity: 0.8, fontWeight: '500', textTransform: 'uppercase' }}>{t('Village Agent Wallet')}</div>
-                    <div style={{ fontSize: '24px', fontWeight: '700', marginTop: '2px' }}>₹{agentWallet.balance}</div>
-                  </div>
-                  <Wallet size={28} />
-                </div>
-
                 <div className="ios-glass-card">
                   <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <UserPlus size={16} style={{ color: 'var(--primary-color)' }} />
@@ -745,14 +737,12 @@ export default function AgentDashboard() {
           {/* Column 1: Settings Form */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div className="ios-glass-card" style={{ padding: '20px' }}>
-              <div className="flex-between" style={{ marginBottom: '14px' }}>
+              <div className="flex-between" style={{ padding: '16px', background: 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)', color: '#ffffff', borderRadius: '16px', border: 'none', marginBottom: '16px' }}>
                 <div>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>{t('Wallet Balance')}</span>
-                  <div style={{ fontSize: '32px', fontWeight: '700', color: 'var(--primary-color)', marginTop: '4px' }}>
-                    ₹{agentWallet.balance}
-                  </div>
+                  <div style={{ fontSize: '11px', opacity: 0.8, fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{t('Village Agent Wallet')}</div>
+                  <div style={{ fontSize: '30px', fontWeight: '700', marginTop: '2px' }}>₹{agentWallet.balance}</div>
                 </div>
-                <Wallet size={36} style={{ color: 'var(--primary-color)', opacity: 0.8 }} />
+                <Wallet size={32} style={{ opacity: 0.9 }} />
               </div>
 
               <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
