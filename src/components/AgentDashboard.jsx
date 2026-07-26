@@ -21,6 +21,7 @@ export default function AgentDashboard() {
     cancelAppointment,
     updateAgentProfile,
     logoutUser,
+    language,
     t
   } = useContext(AppContext);
 
@@ -120,6 +121,42 @@ export default function AgentDashboard() {
   };
 
   const triggerVoiceDictation = () => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      try {
+        const recognition = new SpeechRecognition();
+        recognition.lang = (language === 'en') ? 'en-IN' : 'gu-IN';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        setIsListening(true);
+
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          setProblemText(transcript);
+          setIsListening(false);
+        };
+
+        recognition.onerror = (event) => {
+          console.error("Speech recognition error", event.error);
+          runSpeechSimulator();
+        };
+
+        recognition.onend = () => {
+          setIsListening(false);
+        };
+
+        recognition.start();
+      } catch (err) {
+        console.error("Failed to start speech recognition", err);
+        runSpeechSimulator();
+      }
+    } else {
+      runSpeechSimulator();
+    }
+  };
+
+  const runSpeechSimulator = () => {
     setIsListening(true);
     setTimeout(() => {
       const ailments = [
