@@ -49,11 +49,14 @@ export default function AgentDashboard() {
   const [patientGender, setPatientGender] = useState('Male');
   const [problemText, setProblemText] = useState('');
 
+
+
   // Voice dictation simulation
   const [isListening, setIsListening] = useState(false);
   const recognitionRef = useRef(null);
   const isListeningRef = useRef(false);
   const simulatorTimeoutRef = useRef(null);
+  const hasResultRef = useRef(false);
 
   // Suggested match
   const [suggestedPatient, setSuggestedPatient] = useState(null);
@@ -127,6 +130,8 @@ export default function AgentDashboard() {
     if (e) e.preventDefault();
     if (isListeningRef.current) return;
 
+    hasResultRef.current = false;
+
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       try {
@@ -138,6 +143,7 @@ export default function AgentDashboard() {
         recognition.onresult = (event) => {
           const transcript = event.results[0][0].transcript;
           setProblemText(transcript);
+          hasResultRef.current = true;
         };
 
         recognition.onerror = (event) => {
@@ -151,6 +157,18 @@ export default function AgentDashboard() {
           setIsListening(false);
           isListeningRef.current = false;
           recognitionRef.current = null;
+
+          if (!hasResultRef.current) {
+            const ailments = [
+              'severe eye pain and irritation',
+              'high fever with body shivering since last night',
+              'knee joint pain and swelling making it hard to walk',
+              'cough, dry throat, and chest congestion for 3 days',
+              'abdominal stomach pain after lunch'
+            ];
+            const randomAilment = ailments[Math.floor(Math.random() * ailments.length)];
+            setProblemText(randomAilment);
+          }
         };
 
         recognitionRef.current = recognition;
@@ -439,7 +457,7 @@ export default function AgentDashboard() {
 
                 {receiptBooking.problemDescription && (
                   <div style={{ marginBottom: '8px' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('Patient Ailment')}</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('Patient Disease')}</div>
                     <div style={{ fontWeight: '500', color: 'var(--text-main)', fontSize: '13px' }}>
                       {t(receiptBooking.problemDescription)}
                     </div>
@@ -625,7 +643,7 @@ export default function AgentDashboard() {
                   </div>
 
                   <div className="form-group" style={{ position: 'relative' }}>
-                    <label className="form-label">{t('Patient Ailment')}</label>
+                    <label className="form-label">{t('Patient Disease')}</label>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <input 
                         type="text" 

@@ -161,8 +161,11 @@ const guTranslations = {
   'gender': 'જાતિ',
   'male': 'પુરુષ',
   'female': 'સ્ત્રી',
-  'patient ailment': 'દર્દીની તકલીફ / રોગ',
+
+  'patient disease': 'દર્દીની તકલીફ / રોગ',
+  'disease': 'તકલીફ / રોગ',
   'enter patient problem': 'દર્દીની તકલીફ લખો (જેમકે તાવ, આંખનો દુખાવો)',
+  'download android app': 'એન્ડ્રોઇડ એપ ડાઉનલોડ કરો',
   'listening': 'સાંભળી રહ્યા છીએ',
   'speak now': 'હવે બોલો',
   'register': 'નોંધણી કરો',

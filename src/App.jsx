@@ -6,7 +6,7 @@ import AgentDashboard from './components/AgentDashboard';
 import SuperadminDashboard from './components/SuperadminDashboard';
 import { 
   Shield, Stethoscope, UserCheck, Signal, 
-  LogIn, UserPlus, LogOut, Globe, ShieldAlert, Sun, Moon 
+  LogIn, UserPlus, LogOut, Globe, ShieldAlert, Sun, Moon, Download
 } from 'lucide-react';
 
 function DashboardContainer() {
@@ -288,7 +288,7 @@ function DashboardContainer() {
                     Login to Dashboard
                   </button>
 
-                  <div className="text-center" style={{ marginTop: '16px' }}>
+                  <div className="text-center" style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
                     <button 
                       type="button" 
                       className="btn-outline" 
@@ -297,6 +297,29 @@ function DashboardContainer() {
                     >
                       Apply as New Village Agent
                     </button>
+
+                    <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '2px 0' }} />
+
+                    <a 
+                      href="./Dear_Doctor.apk" 
+                      download="Dear_Doctor.apk"
+                      className="btn-secondary"
+                      style={{ 
+                        fontSize: '12px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        gap: '6px', 
+                        padding: '10px 14px', 
+                        borderRadius: '12px',
+                        textDecoration: 'none',
+                        color: 'var(--text-main)',
+                        fontWeight: '600'
+                      }}
+                    >
+                      <Download size={14} style={{ color: 'var(--primary-color)' }} />
+                      {t('Download Android App')}
+                    </a>
                   </div>
                 </form>
               </div>
