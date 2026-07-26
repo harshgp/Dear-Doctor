@@ -30,61 +30,124 @@
 
 /* Dark Mode overrides */
 .dark-mode {
-  --bg-primary: #0a0a0c;
-  --bg-gradient: linear-gradient(135deg, #16171b 0%, #0d0e11 100%);
-  --panel-bg: rgba(22, 23, 27, 0.82);
-  --panel-bg-solid: #16171b;
+  --bg-primary: #07080a;
+  --bg-gradient: linear-gradient(135deg, #0f1013 0%, #060709 100%);
+  --panel-bg: rgba(18, 19, 23, 0.85);
+  --panel-bg-solid: #121317;
   --border-color: rgba(255, 255, 255, 0.08);
   --border-light: rgba(255, 255, 255, 0.04);
   --text-main: #f5f5f7;
   --text-muted: #8e8e93;
-  --primary-light: rgba(0, 102, 204, 0.22);
-  --primary-glow: rgba(0, 102, 204, 0.45);
-  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-  --modal-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+  --text-white: #0a0a0c; /* Black text for high-contrast active buttons */
+  
+  /* Neon highlighting color variables */
+  --primary-color: #ffffff; /* Neon white */
+  --primary-light: rgba(255, 255, 255, 0.08);
+  --primary-glow: rgba(255, 255, 255, 0.2);
+  
+  --success: #39ff14; /* Neon green */
+  --success-light: rgba(57, 255, 20, 0.12);
+  --warning: #00f0ff; /* Neon cyan */
+  --warning-light: rgba(0, 240, 255, 0.12);
+  --danger: #ff0055; /* Neon pink/red */
+  --danger-light: rgba(255, 0, 85, 0.12);
+  
+  --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --modal-shadow: 0 24px 48px rgba(0, 0, 0, 0.7);
 }
 
 .dark-mode .ios-glass-card {
-  background: rgba(30, 31, 37, 0.72) !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
+  background: rgba(18, 19, 24, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+}
+
+.dark-mode .ios-glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 0 12px rgba(255, 255, 255, 0.08) !important;
 }
 
 .dark-mode .app-header {
-  background: rgba(18, 19, 23, 0.8) !important;
+  background: rgba(15, 16, 20, 0.8) !important;
   border-bottom-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 .dark-mode .bottom-nav {
-  background: rgba(18, 19, 23, 0.85) !important;
+  background: rgba(15, 16, 20, 0.85) !important;
   border-top-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 .dark-mode .form-control {
-  background: rgba(25, 26, 31, 0.85) !important;
+  background: rgba(22, 23, 28, 0.85) !important;
   color: #f5f5f7 !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
 .dark-mode .form-control:focus {
-  background: #1c1d24 !important;
-  border-color: var(--primary-color) !important;
-  box-shadow: 0 0 0 4px var(--primary-glow) !important;
+  background: #131418 !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.25), 0 0 0 4px rgba(255, 255, 255, 0.05) !important;
 }
 
 .dark-mode .modal-content {
-  background: #16171b !important;
+  background: #121317 !important;
   color: #f5f5f7 !important;
   border-color: rgba(255, 255, 255, 0.12) !important;
 }
 
 .dark-mode .alert-info-box {
-  background: rgba(0, 102, 204, 0.12) !important;
-  border-color: rgba(0, 102, 204, 0.25) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: #f5f5f7 !important;
 }
 
 .dark-mode .no-scrollbar button {
   border-color: rgba(255, 255, 255, 0.08);
 }
+
+/* Neon buttons drop shadows override */
+.dark-mode .btn-primary {
+  background: #ffffff !important;
+  color: #07080a !important;
+  border: 1px solid #ffffff !important;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.2) !important;
+  font-weight: 700 !important;
+}
+
+.dark-mode .btn-primary:hover {
+  box-shadow: 0 0 22px rgba(255, 255, 255, 0.35) !important;
+}
+
+.dark-mode .btn-secondary {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: none !important;
+}
+
+.dark-mode .btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.dark-mode .badge-primary {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Override premium blue wallet card in dark mode */
+.dark-mode div[style*="background: linear-gradient"] {
+  background: linear-gradient(135deg, #222329 0%, #0d0e12 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark-mode svg {
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.15));
+}
+
 
 * {
   box-sizing: border-box;
