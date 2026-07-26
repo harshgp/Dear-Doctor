@@ -10,8 +10,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.app.Activity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
+import android.os.Build
 
 class MainActivity : Activity() {
 
@@ -61,20 +60,21 @@ class MainActivity : Activity() {
             }
         }
 
-        // Request runtime permission from Android OS
+        // Request runtime permission from Android OS (API 23+)
         checkMicrophonePermission();
 
         webView.loadUrl(webAppUrl);
     }
 
     private fun checkMicrophonePermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) 
-            != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(
-                this, 
-                arrayOf(Manifest.permission.RECORD_AUDIO), 
-                recordAudioPermissionCode
-            );
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) 
+                != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(
+                    arrayOf(Manifest.permission.RECORD_AUDIO), 
+                    recordAudioPermissionCode
+                );
+            }
         }
     }
 
