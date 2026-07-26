@@ -298,8 +298,6 @@ function DashboardContainer() {
                       Apply as New Village Agent
                     </button>
 
-                    <div style={{ height: '1px', background: 'rgba(255,255,255,0.08)', margin: '2px 0' }} />
-
                     <a 
                       href="./Dear_Doctor.apk" 
                       download="Dear_Doctor.apk"
