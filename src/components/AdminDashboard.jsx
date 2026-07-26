@@ -1,12 +1,13 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../context/AppContext';
-import { Plus, Edit2, ShieldAlert, Sparkles, Stethoscope, Check, Calendar, Activity, LogOut } from 'lucide-react';
+import { Plus, Edit2, ShieldAlert, Sparkles, Stethoscope, Check, Calendar, Activity, LogOut, Settings } from 'lucide-react';
 
 export default function AdminDashboard() {
   const { hospitals, appointments, addDoctor, editDoctor, logoutUser, t } = useContext(AppContext);
   const [selectedHospitalId, setSelectedHospitalId] = useState(hospitals[0]?.id || '');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [activeSubTab, setActiveSubTab] = useState('appointments');
   
   // New Doctor Form State
   const [newDocName, setNewDocName] = useState('');
@@ -94,9 +95,31 @@ export default function AdminDashboard() {
   const activeDoctorsCount = hospitals.flatMap((h) => h.doctors).filter((d) => d.isActive).length;
   const totalBookingsCount = appointments.filter((app) => app.status !== 'Canceled').length;
 
+  const hospitalAppointments = appointments.filter(
+    (app) => app.hospitalId === selectedHospitalId
+  );
+
   return (
     <div className="admin-dashboard">
       
+      {/* Desktop Tabs Header Selection */}
+      <div className="desktop-tabs" style={{ marginBottom: '24px' }}>
+        <button
+          type="button"
+          className={`desktop-tab-btn ${activeSubTab === 'appointments' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('appointments')}
+        >
+          {t('Appointments')}
+        </button>
+        <button
+          type="button"
+          className={`desktop-tab-btn ${activeSubTab === 'management' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('management')}
+        >
+          {t('Management')}
+        </button>
+      </div>
+
       <div className="ios-glass-card" style={{ marginBottom: '20px', padding: '16px' }}>
         <div className="form-group" style={{ margin: 0 }}>
           <label className="form-label">{t('Active Hospital Location')}</label>
@@ -131,8 +154,48 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {activeHospital && (
-        <div>
+      {activeSubTab === 'appointments' && (
+        <div style={{ marginBottom: '24px' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Activity size={18} style={{ color: 'var(--primary-color)' }} />
+            {t('Total Bookings')} ({hospitalAppointments.length})
+          </h3>
+          
+          {hospitalAppointments.length === 0 ? (
+            <div className="ios-glass-card text-center" style={{ padding: '40px 20px', color: 'var(--text-muted)' }}>
+              <Calendar size={36} style={{ color: 'var(--primary-color)', marginBottom: '12px', opacity: 0.6 }} />
+              <p style={{ fontSize: '14px' }}>{t('No appointments booked for this center.')}</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '16px' }}>
+              {hospitalAppointments.map((app) => (
+                <div key={app.id} className="ios-glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div className="flex-between">
+                    <div>
+                      <strong style={{ fontSize: '15px' }}>{t(app.patientName)}</strong>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px' }}>
+                        Token #{app.tokenNumber} &bull; {app.patientAge} {t('Years')} &bull; {t(app.patientGender)}
+                      </div>
+                    </div>
+                    <span className={`badge ${app.status === 'Completed' ? 'badge-success' : app.status === 'Canceled' ? 'badge-danger' : 'badge-primary'}`} style={{ fontSize: '9px' }}>
+                      {t(app.status)}
+                    </span>
+                  </div>
+                  
+                  <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '8px', fontSize: '12px', color: 'var(--text-muted)' }}>
+                    <div>Doctor: <strong style={{ color: 'var(--text-main)' }}>{t(app.doctorName)}</strong> ({t(app.department)})</div>
+                    <div style={{ marginTop: '2px' }}>Date/Slot: <strong style={{ color: 'var(--text-main)' }}>{app.date} &bull; {app.timeSlot}</strong></div>
+                    <div style={{ marginTop: '2px' }}>Fee: <strong style={{ color: 'var(--text-main)' }}>₹{app.feePaid}</strong> ({t(app.paymentMethod)})</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {activeSubTab === 'management' && activeHospital && (
+        <div style={{ marginBottom: '24px' }}>
           <div className="flex-between" style={{ marginBottom: '16px' }}>
             <div>
               <h2 style={{ fontSize: '18px', fontWeight: '700' }}>{t('Hospital Roster')}</h2>
@@ -405,6 +468,23 @@ export default function AdminDashboard() {
           <LogOut size={16} />
           {t('Logout')}
         </button>
+      </div>
+      {/* Mobile-only Bottom Navigation Bar */}
+      <div className="bottom-nav">
+        <div 
+          className={`bottom-nav-item ${activeSubTab === 'appointments' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('appointments')}
+        >
+          <Calendar />
+          <span>{t('Appointments')}</span>
+        </div>
+        <div 
+          className={`bottom-nav-item ${activeSubTab === 'management' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('management')}
+        >
+          <Settings />
+          <span>{t('Management')}</span>
+        </div>
       </div>
     </div>
   );

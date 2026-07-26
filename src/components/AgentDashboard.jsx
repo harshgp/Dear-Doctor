@@ -786,7 +786,7 @@ export default function AgentDashboard() {
                   onClick={toggleTheme}
                   style={{ padding: '8px 16px', borderRadius: '10px', fontSize: '13px' }}
                 >
-                  {theme === 'dark' ? t('Active') : t('On Leave')}
+                  {theme === 'dark' ? t('Enabled') : t('Disabled')}
                 </button>
               </div>
 

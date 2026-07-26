@@ -200,6 +200,8 @@ const guTranslations = {
   'settings & wallet': 'સેટિંગ્સ અને વોલેટ',
   'patient booking': 'નવું બુકિંગ',
   'logout': 'લોગઆઉટ',
+  'enabled': 'ચાલુ',
+  'disabled': 'બંધ',
 
   // Session & Roles
   'switch role': 'ભૂમિકા બદલો',

@@ -77,7 +77,7 @@ function DashboardContainer() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <div style={{ 
             background: 'var(--primary-color)', 
-            color: '#ffffff', 
+            color: 'var(--text-white)', 
             padding: '6px', 
             borderRadius: '8px',
             display: 'flex',
