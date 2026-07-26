@@ -26,28 +26,28 @@ export default function SuperadminDashboard() {
         <div className="ios-glass-card flex-between" style={{ padding: '14px' }}>
           <div>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>{t('Network Agents')}</div>
-            <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '2px' }}>{approvedAgents.length}</div>
+            <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '2px', color: 'var(--text-main)' }}>{approvedAgents.length}</div>
           </div>
           <Users size={24} style={{ color: 'var(--primary-color)' }} />
         </div>
         <div className="ios-glass-card flex-between" style={{ padding: '14px' }}>
           <div>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>{t('Active Bookings')}</div>
-            <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '2px' }}>{totalBookings}</div>
+            <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '2px', color: 'var(--text-main)' }}>{totalBookings}</div>
           </div>
           <Calendar size={24} style={{ color: 'var(--success)' }} />
         </div>
         <div className="ios-glass-card flex-between" style={{ padding: '14px' }}>
           <div>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>{t('Token Fees')}</div>
-            <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '2px' }}>₹{totalTokenRevenue}</div>
+            <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '2px', color: 'var(--text-main)' }}>₹{totalTokenRevenue}</div>
           </div>
           <TrendingUp size={24} style={{ color: 'var(--primary-color)' }} />
         </div>
         <div className="ios-glass-card flex-between" style={{ padding: '14px' }}>
           <div>
             <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '600' }}>{t('Wallet Balance')}</div>
-            <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '2px' }}>₹{totalAgentWallets}</div>
+            <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '2px', color: 'var(--text-main)' }}>₹{totalAgentWallets}</div>
           </div>
           <Wallet size={24} style={{ color: 'var(--warning)' }} />
         </div>

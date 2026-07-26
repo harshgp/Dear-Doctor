@@ -141,14 +141,14 @@ export default function AdminDashboard() {
         <div className="ios-glass-card flex-between" style={{ padding: '16px' }}>
           <div>
             <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>{t('Active Doctors')}</div>
-            <div style={{ fontSize: '24px', fontWeight: '700', marginTop: '4px' }}>{activeDoctorsCount}</div>
+            <div style={{ fontSize: '24px', fontWeight: '700', marginTop: '4px', color: 'var(--text-main)' }}>{activeDoctorsCount}</div>
           </div>
           <Stethoscope size={28} style={{ color: 'var(--primary-color)', opacity: 0.8 }} />
         </div>
         <div className="ios-glass-card flex-between" style={{ padding: '16px' }}>
           <div>
             <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>{t('Total Bookings')}</div>
-            <div style={{ fontSize: '24px', fontWeight: '700', marginTop: '4px' }}>{totalBookingsCount}</div>
+            <div style={{ fontSize: '24px', fontWeight: '700', marginTop: '4px', color: 'var(--text-main)' }}>{totalBookingsCount}</div>
           </div>
           <Activity size={28} style={{ color: 'var(--success)', opacity: 0.8 }} />
         </div>
