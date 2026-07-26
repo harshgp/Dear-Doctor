@@ -237,25 +237,34 @@ export default function DoctorDashboard() {
 
                 <div className="form-group" style={{ marginTop: '14px' }}>
                   <label className="form-label" style={{ marginBottom: '8px' }}>{t('Available Time Slots')}</label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                     {['09:00 AM - 10:00 AM', '10:00 AM - 11:00 AM', '11:00 AM - 12:00 PM', '12:00 PM - 01:00 PM', '02:00 PM - 03:00 PM', '03:00 PM - 04:00 PM', '04:00 PM - 05:00 PM'].map((slot) => {
-                      const isChecked = docSlotsList.includes(slot);
+                      const isSelected = docSlotsList.includes(slot);
                       return (
-                        <label key={slot} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-main)', fontSize: '14px', cursor: 'pointer' }}>
-                          <input 
-                            type="checkbox" 
-                            checked={isChecked}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setDocSlotsList([...docSlotsList, slot]);
-                              } else {
-                                setDocSlotsList(docSlotsList.filter(s => s !== slot));
-                              }
-                            }}
-                            style={{ width: '16px', height: '16px' }}
-                          />
+                        <button
+                          type="button"
+                          key={slot}
+                          onClick={() => {
+                            if (isSelected) {
+                              setDocSlotsList(docSlotsList.filter(s => s !== slot));
+                            } else {
+                              setDocSlotsList([...docSlotsList, slot]);
+                            }
+                          }}
+                          className={`btn-outline ${isSelected ? 'active' : ''}`}
+                          style={{ 
+                            padding: '8px 16px', 
+                            borderRadius: '10px', 
+                            fontSize: '13px',
+                            background: isSelected ? 'var(--primary-color)' : 'transparent',
+                            color: isSelected ? 'var(--text-white)' : 'var(--text-main)',
+                            borderColor: isSelected ? 'var(--primary-color)' : 'rgba(0,0,0,0.1)',
+                            flex: '1 0 130px',
+                            textAlign: 'center'
+                          }}
+                        >
                           {slot}
-                        </label>
+                        </button>
                       );
                     })}
                   </div>
