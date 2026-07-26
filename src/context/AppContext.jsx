@@ -236,6 +236,17 @@ const guTranslations = {
 export const AppProvider = ({ children }) => {
   const [isApiMode, setIsApiMode] = useState(false);
   const [language, setLanguage] = useState('en'); // 'en' or 'gu'
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('dear_doctor_theme') || 'light';
+  });
+
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem('dear_doctor_theme', next);
+      return next;
+    });
+  };
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem('dear_doctor_user');
     return saved ? JSON.parse(saved) : null;
@@ -914,6 +925,8 @@ export const AppProvider = ({ children }) => {
         currentUser,
         language,
         setLanguage,
+        theme,
+        toggleTheme,
         isApiMode,
         t,
         loginUser,

@@ -5,8 +5,8 @@ import DoctorDashboard from './components/DoctorDashboard';
 import AgentDashboard from './components/AgentDashboard';
 import SuperadminDashboard from './components/SuperadminDashboard';
 import { 
-  Shield, Stethoscope, UserCheck, Signal, SignalHigh, 
-  LogIn, UserPlus, LogOut, Globe, ShieldAlert 
+  Shield, Stethoscope, UserCheck, Signal, 
+  LogIn, UserPlus, LogOut, Globe, ShieldAlert, Sun, Moon 
 } from 'lucide-react';
 
 function DashboardContainer() {
@@ -14,13 +14,14 @@ function DashboardContainer() {
     currentUser, 
     language, 
     setLanguage, 
+    theme,
+    toggleTheme,
     loginUser, 
     registerAgent, 
     logoutUser, 
     t 
   } = useContext(AppContext);
 
-  const [lowBandwidth, setLowBandwidth] = useState(false);
   const [showRegisterView, setShowRegisterView] = useState(false);
 
   // Login Form states
@@ -54,7 +55,6 @@ function DashboardContainer() {
     registerAgent(regName, regPhone, regVillage, regPassword).then((res) => {
       if (res.success) {
         setRegSuccessMessage(res.message);
-        // Clear fields
         setRegName('');
         setRegPhone('');
         setRegVillage('');
@@ -70,7 +70,7 @@ function DashboardContainer() {
   };
 
   return (
-    <div className={`mobile-container ${lowBandwidth ? 'low-bandwidth' : ''}`}>
+    <div className={`mobile-container`}>
       
       {/* Header Bar */}
       <header className="app-header">
@@ -97,7 +97,26 @@ function DashboardContainer() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          {/* English / Gujarati toggle */}
+          {/* Theme Toggle Button */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            style={{
+              background: 'var(--primary-light)',
+              border: '1px solid var(--border-color)',
+              color: 'var(--primary-color)',
+              cursor: 'pointer',
+              padding: '6px 10px',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            {theme === 'light' ? <Moon size={14} /> : <Sun size={14} />}
+          </button>
+
+          {/* Language Toggle */}
           <button 
             type="button" 
             onClick={toggleLanguage}
@@ -138,39 +157,12 @@ function DashboardContainer() {
         </div>
       </header>
 
-      {/* Speed Optimizer Bandwidth alert */}
-      <div style={{ padding: '8px 20px 0' }}>
-        <div 
-          onClick={() => setLowBandwidth(!lowBandwidth)}
-          style={{ 
-            background: lowBandwidth ? '#f1f5f9' : '#e0eafc',
-            border: '1px solid rgba(0, 102, 204, 0.08)',
-            padding: '6px 12px', 
-            borderRadius: '12px', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between',
-            cursor: 'pointer',
-            fontSize: '11px'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-main)' }}>
-            <Signal size={12} />
-            <span>{lowBandwidth ? '2G/3G Optimizer Mode: Active' : 'Speed Optimizer: On 4G/5G'}</span>
-          </div>
-          <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--primary-color)' }}>
-            {lowBandwidth ? 'Disable' : 'Optimize'}
-          </span>
-        </div>
-      </div>
-
       {/* Main Content Render area */}
       <main className="main-content">
         {!currentUser ? (
           /* Login & Registration Portal */
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '20px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingBottom: '20px', maxWidth: '440px', margin: '0 auto', width: '100%' }}>
             
-            {/* Logo / Splash brand details */}
             <div className="text-center" style={{ padding: '20px 0 10px' }}>
               <div style={{ 
                 width: '64px', 
@@ -190,7 +182,6 @@ function DashboardContainer() {
             </div>
 
             {showRegisterView ? (
-              /* Agent registration request form */
               <div className="ios-glass-card">
                 <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <UserPlus size={18} style={{ color: 'var(--primary-color)' }} />
@@ -273,7 +264,6 @@ function DashboardContainer() {
                 </form>
               </div>
             ) : (
-              /* Login Portal form */
               <div className="ios-glass-card">
                 <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <LogIn size={18} style={{ color: 'var(--primary-color)' }} />
@@ -328,7 +318,6 @@ function DashboardContainer() {
               </div>
             )}
 
-            {/* Simulated Roles Credentials help box */}
             <div className="alert-info-box">
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: '600', fontSize: '12px', marginBottom: '6px' }}>
                 <ShieldAlert size={14} style={{ color: 'var(--primary-color)' }} />
@@ -347,7 +336,7 @@ function DashboardContainer() {
         ) : (
           /* Render Active Role Dashboard */
           <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', background: '#ffffff', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', background: 'var(--panel-bg-solid)', padding: '10px 14px', borderRadius: '12px', border: '1px solid var(--border-color)' }}>
               <div style={{ 
                 background: 'var(--primary-light)', 
                 color: 'var(--primary-color)', 
@@ -360,7 +349,7 @@ function DashboardContainer() {
                 {currentUser.role}
               </div>
               <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                Session: <strong style={{ color: 'var(--text-main)' }}>{currentUser.name}</strong>
+                Session: <strong style={{ color: 'var(--text-main)' }}>{t(currentUser.name)}</strong>
               </div>
             </div>
 
@@ -379,9 +368,13 @@ function DashboardContainer() {
 export default function App() {
   return (
     <AppProvider>
-      <div className="desktop-wrapper">
-        <DashboardContainer />
-      </div>
+      <AppContext.Consumer>
+        {({ theme }) => (
+          <div className={`desktop-wrapper ${theme === 'dark' ? 'dark-mode' : ''}`}>
+            <DashboardContainer />
+          </div>
+        )}
+      </AppContext.Consumer>
     </AppProvider>
   );
 }

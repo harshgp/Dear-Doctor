@@ -3,7 +3,7 @@ import { AppContext } from '../context/AppContext';
 import { 
   User, Phone, Search, Calendar, Wallet, Settings, 
   MapPin, Plus, CheckCircle, Share2, Clipboard, Mic,
-  TrendingUp, RefreshCw, X, CreditCard, ChevronRight, UserPlus, FileText
+  TrendingUp, RefreshCw, X, CreditCard, ChevronRight, UserPlus, FileText, Sun, Moon
 } from 'lucide-react';
 
 export default function AgentDashboard() {
@@ -12,6 +12,8 @@ export default function AgentDashboard() {
     agentWallet, 
     agentProfile, 
     appointments, 
+    theme,
+    toggleTheme,
     rechargeWallet, 
     bookAppointment,
     getReturnCaseStatus,
@@ -24,7 +26,6 @@ export default function AgentDashboard() {
   // Tabs: 'booking' or 'settings'
   const [activeSubTab, setActiveSubTab] = useState('booking');
 
-  // Villager Registry state
   const [registeredVillagers, setRegisteredVillagers] = useState(() => {
     const saved = localStorage.getItem('dear_doctor_villagers');
     return saved ? JSON.parse(saved) : [
@@ -39,36 +40,36 @@ export default function AgentDashboard() {
     localStorage.setItem('dear_doctor_villagers', JSON.stringify(list));
   };
 
-  // Form input fields for booking
+  // Form inputs
   const [patientName, setPatientName] = useState('');
   const [patientPhone, setPatientPhone] = useState('');
   const [patientAge, setPatientAge] = useState('');
   const [patientGender, setPatientGender] = useState('Male');
   const [problemText, setProblemText] = useState('');
 
-  // Speech to Text mock dictation simulation
+  // Voice dictation simulation
   const [isListening, setIsListening] = useState(false);
 
-  // Search suggestions matches list
+  // Suggested match
   const [suggestedPatient, setSuggestedPatient] = useState(null);
 
-  // Search/Filter states
+  // Filters
   const [cityFilter, setCityFilter] = useState('');
   const [selectedDept, setSelectedDept] = useState('');
   const [selectedDoctorId, setSelectedDoctorId] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedSlot, setSelectedSlot] = useState('10:00 AM - 11:00 AM');
 
-  // Razorpay Checkout Modal state
+  // Modal Payments
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentType, setPaymentType] = useState('recharge');
   const [paymentAmount, setPaymentAmount] = useState(0);
   const [pendingBookingData, setPendingBookingData] = useState(null);
 
-  // Receipt visual view
+  // Receipt
   const [receiptBooking, setReceiptBooking] = useState(null);
 
-  // Agent Settings Form states
+  // Settings
   const [editProfileName, setEditProfileName] = useState(agentProfile?.name || '');
   const [editProfileVillage, setEditProfileVillage] = useState(agentProfile?.village || '');
   const [editProfilePhone, setEditProfilePhone] = useState(agentProfile?.phone || '');
@@ -81,7 +82,6 @@ export default function AgentDashboard() {
     }
   }, [agentProfile]);
 
-  // Autocomplete matcher checks as they type the patient name
   useEffect(() => {
     if (patientName.trim().length > 2) {
       const match = registeredVillagers.find(
@@ -107,7 +107,6 @@ export default function AgentDashboard() {
 
   const triggerVoiceDictation = () => {
     setIsListening(true);
-    // Simulate recording for 1.5 seconds, then output a random realistic ailment
     setTimeout(() => {
       const ailments = [
         'severe eye pain and irritation',
@@ -154,14 +153,12 @@ export default function AgentDashboard() {
   const handleBookingClick = () => {
     if (!patientName || !patientPhone || !patientAge || !activeDoc || !selectedDate) return;
 
-    // Save/add patient details to village registry if it doesn't already exist
     const patientExists = registeredVillagers.some((v) => v.phone === patientPhone);
     if (!patientExists) {
       const updatedList = [{ name: patientName, phone: patientPhone, age: patientAge, gender: patientGender }, ...registeredVillagers];
       saveVillagers(updatedList);
     }
 
-    // Check return case status
     const returnStatus = getReturnCaseStatus(patientPhone, activeDoc.hospitalId, activeDoc.department);
     const fee = returnStatus.isReturn ? 0 : 151;
 
@@ -183,6 +180,8 @@ export default function AgentDashboard() {
         bookingPayload.patientName,
         bookingPayload.patientPhone,
         bookingPayload.patientAge,
+        bookingPayload.patientGender,
+        bookingPayload.problemDescription,
         bookingPayload.hospitalId,
         bookingPayload.doctorId,
         bookingPayload.dateStr,
@@ -201,6 +200,8 @@ export default function AgentDashboard() {
           bookingPayload.patientName,
           bookingPayload.patientPhone,
           bookingPayload.patientAge,
+          bookingPayload.patientGender,
+          bookingPayload.problemDescription,
           bookingPayload.hospitalId,
           bookingPayload.doctorId,
           bookingPayload.dateStr,
@@ -241,6 +242,8 @@ export default function AgentDashboard() {
         pendingBookingData.patientName,
         pendingBookingData.patientPhone,
         pendingBookingData.patientAge,
+        pendingBookingData.patientGender,
+        pendingBookingData.problemDescription,
         pendingBookingData.hospitalId,
         pendingBookingData.doctorId,
         pendingBookingData.dateStr,
@@ -283,12 +286,32 @@ export default function AgentDashboard() {
   return (
     <div className="agent-dashboard">
       
-      {/* Booking Form view */}
+      {/* Desktop Tabs Header Selection */}
+      <div className="desktop-tabs" style={{ marginBottom: '24px' }}>
+        <button
+          type="button"
+          className={`desktop-tab-btn ${activeSubTab === 'booking' ? 'active' : ''}`}
+          onClick={() => {
+            setActiveSubTab('booking');
+            setReceiptBooking(null);
+          }}
+        >
+          {t('Patient Booking')}
+        </button>
+        <button
+          type="button"
+          className={`desktop-tab-btn ${activeSubTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('settings')}
+        >
+          {t('Settings & Wallet')}
+        </button>
+      </div>
+
       {activeSubTab === 'booking' && (
         <div>
           {receiptBooking ? (
             /* Successful Receipt screen */
-            <div className="ios-glass-card" style={{ padding: '24px', textAlign: 'center' }}>
+            <div className="ios-glass-card" style={{ padding: '24px', textAlign: 'center', maxWidth: '480px', margin: '0 auto' }}>
               <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
                 <CheckCircle size={44} style={{ color: 'var(--success)' }} />
               </div>
@@ -296,67 +319,66 @@ export default function AgentDashboard() {
               <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '20px' }}>Receipt Generated Successfully</p>
 
               <div style={{ 
-                background: '#f8fafc', 
+                background: 'var(--panel-bg-solid)', 
                 border: '1px dashed var(--border-color)', 
                 borderRadius: '16px', 
                 padding: '20px', 
                 marginBottom: '20px',
                 textAlign: 'left'
               }}>
-                <div className="flex-between" style={{ borderBottom: '1px solid #eef2f6', paddingBottom: '8px', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Token ID</span>
+                <div className="flex-between" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{t('Token ID')}</span>
                   <strong style={{ color: 'var(--text-main)', fontSize: '13px' }}>{receiptBooking.id}</strong>
                 </div>
 
-                <div className="flex-between" style={{ borderBottom: '1px solid #eef2f6', paddingBottom: '8px', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Token No</span>
+                <div className="flex-between" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{t('Token No')}</span>
                   <strong style={{ color: 'var(--primary-color)', fontSize: '18px', fontWeight: '700' }}>#{receiptBooking.tokenNumber}</strong>
                 </div>
 
                 <div style={{ marginBottom: '8px' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Patient Name</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('Full Name')}</div>
                   <div style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: '14px' }}>
-                    {receiptBooking.patientName} ({receiptBooking.patientGender}) &bull; {receiptBooking.patientAge} Years
+                    {t(receiptBooking.patientName)} ({t(receiptBooking.patientGender)}) &bull; {receiptBooking.patientAge} {t('Years')}
                   </div>
                 </div>
 
                 {receiptBooking.problemDescription && (
                   <div style={{ marginBottom: '8px' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Ailment / Issue</div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('Patient Ailment')}</div>
                     <div style={{ fontWeight: '500', color: 'var(--text-main)', fontSize: '13px' }}>
-                      {receiptBooking.problemDescription}
+                      {t(receiptBooking.problemDescription)}
                     </div>
                   </div>
                 )}
 
                 <div style={{ marginBottom: '8px' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Doctor & Department</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('Select Doctor')}</div>
                   <div style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: '14px' }}>
-                    {receiptBooking.doctorName} ({receiptBooking.department})
+                    {t(receiptBooking.doctorName)} ({t(receiptBooking.department)})
                   </div>
                 </div>
 
                 <div style={{ marginBottom: '8px' }}>
-                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Hospital</div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{t('Active Hospital Location')}</div>
                   <div style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: '13px' }}>
-                    {receiptBooking.hospitalName}, {receiptBooking.hospitalCity}
+                    {t(receiptBooking.hospitalName)}, {t(receiptBooking.hospitalCity)}
                   </div>
                 </div>
 
-                <div className="flex-between" style={{ borderBottom: '1px solid #eef2f6', paddingBottom: '8px', marginBottom: '8px' }}>
+                <div className="flex-between" style={{ borderBottom: '1px solid var(--border-color)', paddingBottom: '8px', marginBottom: '8px' }}>
                   <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Date & Slot</span>
                   <strong style={{ color: 'var(--text-main)', fontSize: '13px' }}>{receiptBooking.date} &bull; {receiptBooking.timeSlot}</strong>
                 </div>
 
                 <div className="flex-between">
-                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Fee</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{t('Fee')}</span>
                   <strong style={{ color: 'var(--text-main)', fontSize: '14px' }}>
-                    Rs {receiptBooking.feePaid} ({receiptBooking.paymentMethod})
+                    Rs {receiptBooking.feePaid} ({t(receiptBooking.paymentMethod)})
                   </strong>
                 </div>
               </div>
 
-              {/* QR Mock code */}
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', marginBottom: '20px' }}>
                 <div style={{ 
                   width: '100px', 
@@ -369,7 +391,7 @@ export default function AgentDashboard() {
                   justifyContent: 'center',
                   padding: '6px'
                 }}>
-                  <svg width="84" height="84" viewBox="0 0 100 100" fill="var(--text-main)">
+                  <svg width="84" height="84" viewBox="0 0 100 100" fill="#1d1d1f">
                     <rect x="0" y="0" width="25" height="25" />
                     <rect x="5" y="5" width="15" height="15" fill="#fff" />
                     <rect x="8" y="8" width="9" height="9" />
@@ -388,7 +410,7 @@ export default function AgentDashboard() {
                     <rect x="40" y="90" width="10" height="10" />
                   </svg>
                 </div>
-                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>Scan at hospital counter</div>
+                <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>{t('Scan at hospital counter')}</div>
               </div>
 
               <div style={{ display: 'flex', gap: '12px' }}>
@@ -397,439 +419,462 @@ export default function AgentDashboard() {
                   style={{ flex: 1 }}
                   onClick={() => copySMSTemplate(receiptBooking)}
                 >
-                  <Share2 size={16} /> Share SMS
+                  <Share2 size={16} /> {t('Share SMS')}
                 </button>
                 <button 
                   className="btn-primary" 
                   style={{ flex: 1 }}
                   onClick={() => setReceiptBooking(null)}
                 >
-                  Book New
+                  {t('Book New')}
                 </button>
               </div>
             </div>
           ) : (
-            /* Patient details input */
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            /* Responsive Grid Split booking view */
+            <div className="responsive-grid">
               
-              {/* Wallet overview bar */}
-              <div className="ios-glass-card flex-between" style={{ padding: '16px', background: 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)', color: '#ffffff' }}>
-                <div>
-                  <div style={{ fontSize: '11px', opacity: 0.8, fontWeight: '500', textTransform: 'uppercase' }}>{t('Village Agent Wallet')}</div>
-                  <div style={{ fontSize: '24px', fontWeight: '700', marginTop: '2px' }}>₹{agentWallet.balance}</div>
+              {/* Column 1: Patient details input */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div className="ios-glass-card flex-between" style={{ padding: '16px', background: 'linear-gradient(135deg, #0066cc 0%, #0052a3 100%)', color: '#ffffff' }}>
+                  <div>
+                    <div style={{ fontSize: '11px', opacity: 0.8, fontWeight: '500', textTransform: 'uppercase' }}>{t('Village Agent Wallet')}</div>
+                    <div style={{ fontSize: '24px', fontWeight: '700', marginTop: '2px' }}>₹{agentWallet.balance}</div>
+                  </div>
+                  <Wallet size={28} />
                 </div>
-                <Wallet size={28} />
-              </div>
 
-              {/* Step 1: Patient details (New Patient Tab default open) */}
-              <div className="ios-glass-card">
-                <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <UserPlus size={16} style={{ color: 'var(--primary-color)' }} />
-                  {t('1. Patient Details')}
-                </h3>
+                <div className="ios-glass-card">
+                  <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <UserPlus size={16} style={{ color: 'var(--primary-color)' }} />
+                    {t('1. Patient Details')}
+                  </h3>
 
-                {/* Name Auto-fill Matcher Suggestion Alert */}
-                {suggestedPatient && (
-                  <div 
-                    onClick={() => selectSuggestedPatient(suggestedPatient)}
-                    style={{ 
-                      background: 'var(--primary-light)', 
-                      border: '1px solid var(--border-color)', 
-                      borderRadius: '12px', 
-                      padding: '10px 14px', 
-                      marginBottom: '14px',
-                      cursor: 'pointer',
-                      fontSize: '13px'
-                    }}
-                  >
-                    <div style={{ fontWeight: '600', color: 'var(--primary-color)' }}>
-                      Match found: {suggestedPatient.name}
+                  {suggestedPatient && (
+                    <div 
+                      onClick={() => selectSuggestedPatient(suggestedPatient)}
+                      style={{ 
+                        background: 'var(--primary-light)', 
+                        border: '1px solid var(--border-color)', 
+                        borderRadius: '12px', 
+                        padding: '10px 14px', 
+                        marginBottom: '14px',
+                        cursor: 'pointer',
+                        fontSize: '13px'
+                      }}
+                    >
+                      <div style={{ fontWeight: '600', color: 'var(--primary-color)' }}>
+                        Match found: {t(suggestedPatient.name)}
+                      </div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                        Mobile: {suggestedPatient.phone} &bull; Age: {suggestedPatient.age} Y. Click to auto-fill.
+                      </div>
                     </div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                      Mobile: {suggestedPatient.phone} &bull; Age: {suggestedPatient.age} Y. Click to auto-fill.
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                <div className="form-group">
-                  <label className="form-label">{t('Full Name')}</label>
-                  <input 
-                    type="text" 
-                    className="form-control" 
-                    value={patientName} 
-                    onChange={(e) => setPatientName(e.target.value)}
-                    placeholder="Enter Patient Full Name"
-                    required
-                  />
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '10px' }}>
                   <div className="form-group">
-                    <label className="form-label">{t('Phone Number')}</label>
-                    <input 
-                      type="tel" 
-                      className="form-control" 
-                      value={patientPhone} 
-                      onChange={(e) => setPatientPhone(e.target.value)}
-                      placeholder="10-digit number"
-                      pattern="[0-9]{10}"
-                      required
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">{t('Age')}</label>
-                    <input 
-                      type="number" 
-                      className="form-control" 
-                      value={patientAge} 
-                      onChange={(e) => setPatientAge(e.target.value)}
-                      placeholder="Years"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Gender Select check options */}
-                <div className="form-group" style={{ marginBottom: '14px' }}>
-                  <label className="form-label">{t('Gender')}</label>
-                  <div style={{ display: 'flex', gap: '16px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', cursor: 'pointer' }}>
-                      <input 
-                        type="radio" 
-                        name="gender" 
-                        value="Male" 
-                        checked={patientGender === 'Male'} 
-                        onChange={() => setPatientGender('Male')}
-                        style={{ width: '18px', height: '18px' }}
-                      />
-                      {t('Male')}
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', cursor: 'pointer' }}>
-                      <input 
-                        type="radio" 
-                        name="gender" 
-                        value="Female" 
-                        checked={patientGender === 'Female'} 
-                        onChange={() => setPatientGender('Female')}
-                        style={{ width: '18px', height: '18px' }}
-                      />
-                      {t('Female')}
-                    </label>
-                  </div>
-                </div>
-
-                {/* Problem Statement text box with Microphone voice sim */}
-                <div className="form-group" style={{ position: 'relative' }}>
-                  <label className="form-label">{t('Patient Ailment')}</label>
-                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <label className="form-label">{t('Full Name')}</label>
                     <input 
                       type="text" 
                       className="form-control" 
-                      value={problemText} 
-                      onChange={(e) => setProblemText(e.target.value)}
-                      placeholder={t('Enter patient problem')}
+                      value={patientName} 
+                      onChange={(e) => setPatientName(e.target.value)}
+                      placeholder="Enter Patient Full Name"
+                      required
                     />
-                    <button
-                      type="button"
-                      onClick={triggerVoiceDictation}
-                      className={`btn-secondary ${isListening ? 'mic-pulse' : ''}`}
-                      style={{ padding: '10px 14px', borderRadius: '12px' }}
-                    >
-                      <Mic size={18} />
-                    </button>
                   </div>
-                  {isListening && (
-                    <div style={{ fontSize: '11px', color: 'var(--danger)', marginTop: '4px', fontWeight: '600' }}>
-                      {t('Listening')}... {t('Speak now')}
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '10px' }}>
+                    <div className="form-group">
+                      <label className="form-label">{t('Phone Number')}</label>
+                      <input 
+                        type="tel" 
+                        className="form-control" 
+                        value={patientPhone} 
+                        onChange={(e) => setPatientPhone(e.target.value)}
+                        placeholder="10-digit number"
+                        pattern="[0-9]{10}"
+                        required
+                      />
                     </div>
-                  )}
+                    <div className="form-group">
+                      <label className="form-label">{t('Age')}</label>
+                      <input 
+                        type="number" 
+                        className="form-control" 
+                        value={patientAge} 
+                        onChange={(e) => setPatientAge(e.target.value)}
+                        placeholder="Years"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group" style={{ marginBottom: '14px' }}>
+                    <label className="form-label">{t('Gender')}</label>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', cursor: 'pointer' }}>
+                        <input 
+                          type="radio" 
+                          name="gender" 
+                          value="Male" 
+                          checked={patientGender === 'Male'} 
+                          onChange={() => setPatientGender('Male')}
+                          style={{ width: '18px', height: '18px' }}
+                        />
+                        {t('Male')}
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', cursor: 'pointer' }}>
+                        <input 
+                          type="radio" 
+                          name="gender" 
+                          value="Female" 
+                          checked={patientGender === 'Female'} 
+                          onChange={() => setPatientGender('Female')}
+                          style={{ width: '18px', height: '18px' }}
+                        />
+                        {t('Female')}
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="form-group" style={{ position: 'relative' }}>
+                    <label className="form-label">{t('Patient Ailment')}</label>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <input 
+                        type="text" 
+                        className="form-control" 
+                        value={problemText} 
+                        onChange={(e) => setProblemText(e.target.value)}
+                        placeholder={t('Enter patient problem')}
+                      />
+                      <button
+                        type="button"
+                        onClick={triggerVoiceDictation}
+                        className={`btn-secondary ${isListening ? 'mic-pulse' : ''}`}
+                        style={{ padding: '10px 14px', borderRadius: '12px' }}
+                      >
+                        <Mic size={18} />
+                      </button>
+                    </div>
+                    {isListening && (
+                      <div style={{ fontSize: '11px', color: 'var(--danger)', marginTop: '4px', fontWeight: '600' }}>
+                        {t('Listening')}... {t('Speak now')}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              {/* Step 2: Roster Center and Doctor Selection */}
-              <div className="ios-glass-card">
-                <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <Search size={16} style={{ color: 'var(--primary-color)' }} />
-                  {t('2. Select Center & Doctor')}
-                </h3>
+              {/* Column 2: Center/Doctor selection, picker date, & Booking CTA */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div className="ios-glass-card">
+                  <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <Search size={16} style={{ color: 'var(--primary-color)' }} />
+                    {t('2. Select Center & Doctor')}
+                  </h3>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
-                  <div className="form-group" style={{ margin: 0 }}>
-                    <select 
-                      className="form-control form-select"
-                      value={cityFilter}
-                      onChange={(e) => {
-                        setCityFilter(e.target.value);
-                        setSelectedDept('');
-                        setSelectedDoctorId('');
-                        setSelectedDate('');
-                      }}
-                    >
-                      <option value="">{t('All Cities')}</option>
-                      <option value="Mehsana">Mehsana</option>
-                      <option value="Palanpur">Palanpur</option>
-                    </select>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
+                    <div className="form-group" style={{ margin: 0 }}>
+                      <select 
+                        className="form-control form-select"
+                        value={cityFilter}
+                        onChange={(e) => {
+                          setCityFilter(e.target.value);
+                          setSelectedDept('');
+                          setSelectedDoctorId('');
+                          setSelectedDate('');
+                        }}
+                      >
+                        <option value="">{t('All Cities')}</option>
+                        <option value="Mehsana">Mehsana</option>
+                        <option value="Palanpur">Palanpur</option>
+                      </select>
+                    </div>
+
+                    <div className="form-group" style={{ margin: 0 }}>
+                      <select 
+                        className="form-control form-select"
+                        value={selectedDept}
+                        onChange={(e) => {
+                          setSelectedDept(e.target.value);
+                          setSelectedDoctorId('');
+                          setSelectedDate('');
+                        }}
+                        disabled={!allDepts.length}
+                      >
+                        <option value="">{t('All Departments')}</option>
+                        {allDepts.map((d) => (
+                          <option key={d} value={d}>{t(d)}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
 
                   <div className="form-group" style={{ margin: 0 }}>
                     <select 
                       className="form-control form-select"
-                      value={selectedDept}
+                      value={selectedDoctorId}
                       onChange={(e) => {
-                        setSelectedDept(e.target.value);
-                        setSelectedDoctorId('');
+                        setSelectedDoctorId(e.target.value);
                         setSelectedDate('');
                       }}
-                      disabled={!allDepts.length}
+                      disabled={!filteredDoctors.length}
                     >
-                      <option value="">{t('All Departments')}</option>
-                      {allDepts.map((d) => (
-                        <option key={d} value={d}>{t(d)}</option>
+                      <option value="">{t('Select Doctor')}</option>
+                      {filteredDoctors.map((doc) => (
+                        <option key={doc.id} value={doc.id}>
+                          {t(doc.name)} - {t(doc.specialty)} ({t(doc.hospitalName)})
+                        </option>
                       ))}
                     </select>
                   </div>
                 </div>
 
-                <div className="form-group" style={{ margin: 0 }}>
-                  <select 
-                    className="form-control form-select"
-                    value={selectedDoctorId}
-                    onChange={(e) => {
-                      setSelectedDoctorId(e.target.value);
-                      setSelectedDate('');
-                    }}
-                    disabled={!filteredDoctors.length}
-                  >
-                    <option value="">{t('Select Doctor')}</option>
-                    {filteredDoctors.map((doc) => (
-                      <option key={doc.id} value={doc.id}>
-                        {doc.name} - {doc.specialty} ({doc.hospitalName})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+                {activeDoc && (
+                  <div className="ios-glass-card">
+                    <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <Calendar size={16} style={{ color: 'var(--primary-color)' }} />
+                      {t('3. Pick Date')}
+                    </h3>
 
-              {/* Step 3: Pick Date Calendar (without visible scrollbar) */}
-              {activeDoc && (
-                <div className="ios-glass-card">
-                  <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <Calendar size={16} style={{ color: 'var(--primary-color)' }} />
-                    {t('3. Pick Date')}
-                  </h3>
+                    <div className="no-scrollbar" style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
+                      {nextDates.map((item) => {
+                        const isAvailableDay = activeDoc.weeklyDays.includes(item.dayName);
+                        const bookedCount = getBookedSlotsCount(activeDoc.id, item.dateStr);
+                        const isFull = bookedCount >= activeDoc.slotsPerDay;
+                        const slotsLeft = activeDoc.slotsPerDay - bookedCount;
 
-                  {/* Horizontal Scroll Days List (no-scrollbar hides scroll handle) */}
-                  <div className="no-scrollbar" style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
-                    {nextDates.map((item) => {
-                      const isAvailableDay = activeDoc.weeklyDays.includes(item.dayName);
-                      const bookedCount = getBookedSlotsCount(activeDoc.id, item.dateStr);
-                      const isFull = bookedCount >= activeDoc.slotsPerDay;
-                      const slotsLeft = activeDoc.slotsPerDay - bookedCount;
-
-                      return (
-                        <button
-                          type="button"
-                          key={item.dateStr}
-                          disabled={!isAvailableDay || isFull}
-                          onClick={() => setSelectedDate(item.dateStr)}
-                          style={{
-                            flex: '0 0 84px',
-                            padding: '12px 8px',
-                            borderRadius: '12px',
-                            border: '1px solid',
-                            borderColor: selectedDate === item.dateStr ? 'var(--primary-color)' : 'rgba(0,102,204,0.15)',
-                            background: selectedDate === item.dateStr ? 'var(--primary-color)' : 'rgba(255,255,255,0.75)',
-                            color: selectedDate === item.dateStr ? 'var(--text-white)' : 'var(--text-main)',
-                            opacity: (!isAvailableDay || isFull) ? 0.35 : 1,
-                            cursor: (!isAvailableDay || isFull) ? 'not-allowed' : 'pointer',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: '4px'
-                          }}
-                        >
-                          <span style={{ fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', opacity: selectedDate === item.dateStr ? 0.8 : 0.6 }}>
-                            {t(item.dayName)}
-                          </span>
-                          <span style={{ fontSize: '15px', fontWeight: '700' }}>
-                            {item.dateLabel.split(' ')[0]}
-                          </span>
-                          <span style={{ fontSize: '9px', fontWeight: '500', opacity: 0.9 }}>
-                            {!isAvailableDay ? t('Off-day') : isFull ? t('Full') : `${slotsLeft} ${t('left')}`}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {selectedDate && (
-                    <div style={{ marginTop: '16px' }}>
-                      <div className="form-group" style={{ margin: 0 }}>
-                        <label className="form-label">{t('Available Timings')}</label>
-                        <select 
-                          className="form-control form-select"
-                          value={selectedSlot}
-                          onChange={(e) => setSelectedSlot(e.target.value)}
-                        >
-                          <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM</option>
-                          <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
-                          <option value="11:00 AM - 12:00 PM">11:00 PM - 12:00 PM</option>
-                          <option value="12:00 PM - 01:00 PM">12:00 PM - 01:00 PM</option>
-                          <option value="04:00 PM - 05:00 PM">04:00 PM - 05:00 PM</option>
-                        </select>
-                      </div>
+                        return (
+                          <button
+                            type="button"
+                            key={item.dateStr}
+                            disabled={!isAvailableDay || isFull}
+                            onClick={() => setSelectedDate(item.dateStr)}
+                            style={{
+                              flex: '0 0 84px',
+                              padding: '12px 8px',
+                              borderRadius: '12px',
+                              border: '1px solid',
+                              borderColor: selectedDate === item.dateStr ? 'var(--primary-color)' : 'var(--border-color)',
+                              background: selectedDate === item.dateStr ? 'var(--primary-color)' : 'var(--panel-bg-solid)',
+                              color: selectedDate === item.dateStr ? 'var(--text-white)' : 'var(--text-main)',
+                              opacity: (!isAvailableDay || isFull) ? 0.35 : 1,
+                              cursor: (!isAvailableDay || isFull) ? 'not-allowed' : 'pointer',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              alignItems: 'center',
+                              gap: '4px'
+                            }}
+                          >
+                            <span style={{ fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', opacity: selectedDate === item.dateStr ? 0.8 : 0.6 }}>
+                              {t(item.dayName)}
+                            </span>
+                            <span style={{ fontSize: '15px', fontWeight: '700' }}>
+                              {item.dateLabel.split(' ')[0]}
+                            </span>
+                            <span style={{ fontSize: '9px', fontWeight: '500', opacity: 0.9 }}>
+                              {!isAvailableDay ? t('Off-day') : isFull ? t('Full') : `${slotsLeft} ${t('left')}`}
+                            </span>
+                          </button>
+                        );
+                      })}
                     </div>
-                  )}
-                </div>
-              )}
 
-              {/* Book Appointment CTA */}
-              {patientName && patientPhone && patientAge && activeDoc && selectedDate && (
-                <div className="ios-glass-card" style={{ padding: '16px' }}>
-                  {(() => {
-                    const returnStatus = getReturnCaseStatus(patientPhone, activeDoc.hospitalId, activeDoc.department);
-                    if (returnStatus.isReturn) {
-                      return (
-                        <div style={{ background: 'var(--success-light)', color: 'var(--success)', padding: '10px 14px', borderRadius: '12px', fontSize: '13px', fontWeight: '500', marginBottom: '14px' }}>
-                          {t('Verified Return Case! Previous visit was within 30 days. No token fee (Fee: 0) will be charged.')}
+                    {selectedDate && (
+                      <div style={{ marginTop: '16px' }}>
+                        <div className="form-group" style={{ margin: 0 }}>
+                          <label className="form-label">{t('Available Timings')}</label>
+                          <select 
+                            className="form-control form-select"
+                            value={selectedSlot}
+                            onChange={(e) => setSelectedSlot(e.target.value)}
+                          >
+                            <option value="09:00 AM - 10:00 AM">09:00 AM - 10:00 AM</option>
+                            <option value="10:00 AM - 11:00 AM">10:00 AM - 11:00 AM</option>
+                            <option value="11:00 AM - 12:00 PM">11:00 PM - 12:00 PM</option>
+                            <option value="12:00 PM - 01:00 PM">12:00 PM - 01:00 PM</option>
+                            <option value="04:00 PM - 05:00 PM">04:00 PM - 05:00 PM</option>
+                          </select>
                         </div>
-                      );
-                    } else {
-                      return (
-                        <div className="flex-between" style={{ marginBottom: '14px' }}>
-                          <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>{t('Token consultation charge:')}</span>
-                          <strong style={{ fontSize: '18px', color: 'var(--text-main)' }}>₹151</strong>
-                        </div>
-                      );
-                    }
-                  })()}
+                      </div>
+                    )}
+                  </div>
+                )}
 
-                  <button 
-                    className="btn-primary" 
-                    style={{ width: '100%' }}
-                    onClick={handleBookingClick}
-                  >
-                    {t('Confirm Booking & Pay')}
-                  </button>
-                </div>
-              )}
+                {patientName && patientPhone && patientAge && activeDoc && selectedDate && (
+                  <div className="ios-glass-card" style={{ padding: '16px' }}>
+                    {(() => {
+                      const returnStatus = getReturnCaseStatus(patientPhone, activeDoc.hospitalId, activeDoc.department);
+                      if (returnStatus.isReturn) {
+                        return (
+                          <div style={{ background: 'var(--success-light)', color: 'var(--success)', padding: '10px 14px', borderRadius: '12px', fontSize: '13px', fontWeight: '500', marginBottom: '14px' }}>
+                            {t('Verified Return Case! Previous visit was within 30 days. No token fee (Fee: 0) will be charged.')}
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div className="flex-between" style={{ marginBottom: '14px' }}>
+                            <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>{t('Token consultation charge:')}</span>
+                            <strong style={{ fontSize: '18px', color: 'var(--text-main)' }}>₹151</strong>
+                          </div>
+                        );
+                      }
+                    })()}
+
+                    <button 
+                      className="btn-primary" 
+                      style={{ width: '100%' }}
+                      onClick={handleBookingClick}
+                    >
+                      {t('Confirm Booking & Pay')}
+                    </button>
+                  </div>
+                )}
+              </div>
 
             </div>
           )}
         </div>
       )}
 
-      {/* Settings / Wallet Recharge View */}
+      {/* Settings Panel */}
       {activeSubTab === 'settings' && (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className="responsive-grid">
           
-          <div className="ios-glass-card" style={{ padding: '20px' }}>
-            <div className="flex-between" style={{ marginBottom: '14px' }}>
-              <div>
-                <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>{t('Wallet Balance')}</span>
-                <div style={{ fontSize: '32px', fontWeight: '700', color: 'var(--primary-color)', marginTop: '4px' }}>
-                  ₹{agentWallet.balance}
-                </div>
-              </div>
-              <Wallet size={36} style={{ color: 'var(--primary-color)', opacity: 0.8 }} />
-            </div>
-
-            <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
-              <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>
-                {t('Instant Recharge Wallet')}
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {[500, 1000, 1500].map((amt) => {
-                  const bonus = Math.floor(amt / 500) * 25;
-                  return (
-                    <button 
-                      key={amt}
-                      type="button"
-                      className="btn-secondary flex-between"
-                      style={{ padding: '10px 16px', fontSize: '14px', width: '100%', borderRadius: '12px' }}
-                      onClick={() => triggerRechargeFlow(amt)}
-                    >
-                      <span>{t('Recharge')} ₹{amt}</span>
-                      <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--success)' }}>
-                        Credit: ₹{amt + bonus}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          <div className="ios-glass-card">
-            <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Settings size={16} style={{ color: 'var(--primary-color)' }} />
-              {t('Dealer / Agent Profile')}
-            </h3>
-            <form onSubmit={handleSaveProfile}>
-              <div className="form-group">
-                <label className="form-label">{t('Dealer Name')}</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  value={editProfileName} 
-                  onChange={(e) => setEditProfileName(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">{t('Assigned Village')}</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  value={editProfileVillage} 
-                  onChange={(e) => setEditProfileVillage(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">{t('Registered Phone')}</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  value={editProfilePhone} 
-                  onChange={(e) => setEditProfilePhone(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">{t('Dealer Unique Code')}</label>
-                <input 
-                  type="text" 
-                  className="form-control" 
-                  value={agentProfile?.code || ''} 
-                  disabled
-                />
-              </div>
-              <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '8px' }}>
-                {t('Save Profile')}
-              </button>
-            </form>
-          </div>
-
-          <div className="ios-glass-card">
-            <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <TrendingUp size={16} style={{ color: 'var(--primary-color)' }} />
-              {t('Transaction Ledger')}
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '200px', overflowY: 'auto' }}>
-              {agentWallet.transactions.map((tx) => (
-                <div key={tx.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
-                  <div>
-                    <div style={{ fontSize: '13px', fontWeight: '500' }}>{t(tx.details)}</div>
-                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{tx.date}</div>
+          {/* Column 1: Settings Form */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div className="ios-glass-card" style={{ padding: '20px' }}>
+              <div className="flex-between" style={{ marginBottom: '14px' }}>
+                <div>
+                  <span style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>{t('Wallet Balance')}</span>
+                  <div style={{ fontSize: '32px', fontWeight: '700', color: 'var(--primary-color)', marginTop: '4px' }}>
+                    ₹{agentWallet.balance}
                   </div>
-                  <strong style={{ fontSize: '13px', color: tx.type === 'credit' ? 'var(--success)' : 'var(--danger)' }}>
-                    {tx.type === 'credit' ? '+' : '-'}₹{tx.amount}
-                  </strong>
                 </div>
-              ))}
+                <Wallet size={36} style={{ color: 'var(--primary-color)', opacity: 0.8 }} />
+              </div>
+
+              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '16px' }}>
+                <div style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px' }}>
+                  {t('Instant Recharge Wallet')}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {[500, 1000, 1500].map((amt) => {
+                    const bonus = Math.floor(amt / 500) * 25;
+                    return (
+                      <button 
+                        key={amt}
+                        type="button"
+                        className="btn-secondary flex-between"
+                        style={{ padding: '10px 16px', fontSize: '14px', width: '100%', borderRadius: '12px' }}
+                        onClick={() => triggerRechargeFlow(amt)}
+                      >
+                        <span>{t('Recharge')} ₹{amt}</span>
+                        <span style={{ fontSize: '12px', fontWeight: '700', color: 'var(--success)' }}>
+                          Credit: ₹{amt + bonus}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Display Preferences Switcher */}
+            <div className="ios-glass-card">
+              <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                {theme === 'dark' ? <Moon size={16} style={{ color: 'var(--primary-color)' }} /> : <Sun size={16} style={{ color: 'var(--primary-color)' }} />}
+                {t('Display Preferences')}
+              </h3>
+              <div className="flex-between">
+                <span style={{ fontSize: '14px', fontWeight: '500' }}>{t('Dark Mode')}</span>
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={toggleTheme}
+                  style={{ padding: '8px 16px', borderRadius: '10px', fontSize: '13px' }}
+                >
+                  {theme === 'dark' ? t('Active') : t('On Leave')}
+                </button>
+              </div>
             </div>
           </div>
+
+          {/* Column 2: Agent Profiles & Ledgers */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div className="ios-glass-card">
+              <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Settings size={16} style={{ color: 'var(--primary-color)' }} />
+                {t('Dealer / Agent Profile')}
+              </h3>
+              <form onSubmit={handleSaveProfile}>
+                <div className="form-group">
+                  <label className="form-label">{t('Dealer Name')}</label>
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    value={editProfileName} 
+                    onChange={(e) => setEditProfileName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">{t('Assigned Village')}</label>
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    value={editProfileVillage} 
+                    onChange={(e) => setEditProfileVillage(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">{t('Registered Phone')}</label>
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    value={editProfilePhone} 
+                    onChange={(e) => setEditProfilePhone(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">{t('Dealer Unique Code')}</label>
+                  <input 
+                    type="text" 
+                    className="form-control" 
+                    value={agentProfile?.code || ''} 
+                    disabled
+                  />
+                </div>
+                <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: '8px' }}>
+                  {t('Save Profile')}
+                </button>
+              </form>
+            </div>
+
+            <div className="ios-glass-card">
+              <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <TrendingUp size={16} style={{ color: 'var(--primary-color)' }} />
+                {t('Transaction Ledger')}
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', maxHeight: '200px', overflowY: 'auto' }}>
+                {agentWallet.transactions.map((tx) => (
+                  <div key={tx.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border-color)' }}>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: '500' }}>{t(tx.details)}</div>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>{tx.date}</div>
+                    </div>
+                    <strong style={{ fontSize: '13px', color: tx.type === 'credit' ? 'var(--success)' : 'var(--danger)' }}>
+                      {tx.type === 'credit' ? '+' : '-'}₹{tx.amount}
+                    </strong>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
         </div>
       )}
 
@@ -838,7 +883,7 @@ export default function AgentDashboard() {
         <div className="modal-overlay" style={{ zIndex: 2000 }}>
           <div className="modal-content" style={{ maxWidth: '360px', borderRadius: '16px', overflow: 'hidden' }}>
             
-            <div style={{ background: '#0e2447', padding: '16px', color: 'var(--text-white)', position: 'relative' }}>
+            <div style={{ background: '#0e2447', padding: '16px', color: '#ffffff', position: 'relative' }}>
               <div className="flex-between">
                 <div>
                   <div style={{ fontSize: '10px', opacity: 0.6, letterSpacing: '1px', textTransform: 'uppercase' }}>Razorpay Secure</div>
@@ -933,7 +978,7 @@ export default function AgentDashboard() {
         </div>
       )}
 
-      {/* Screen bottom menu tabs */}
+      {/* Mobile-only Bottom Navigation Bar */}
       <div className="bottom-nav">
         <div 
           className={`bottom-nav-item ${activeSubTab === 'booking' ? 'active' : ''}`}

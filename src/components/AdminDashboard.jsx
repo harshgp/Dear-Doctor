@@ -147,32 +147,31 @@ export default function AdminDashboard() {
             </button>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {/* Responsive grid for doctor roster cards */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))', gap: '16px' }}>
             {activeHospital.doctors.map((doc) => (
-              <div key={doc.id} className="ios-glass-card" style={{ padding: '16px' }}>
-                <div className="flex-between">
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <h4 style={{ fontSize: '15px', fontWeight: '600' }}>{t(doc.name)}</h4>
-                      <span className={`badge ${doc.isActive ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '10px', padding: '2px 6px' }}>
-                        {doc.isActive ? t('Active') : t('On Leave')}
-                      </span>
-                    </div>
-                    <div style={{ fontSize: '13px', color: 'var(--primary-color)', fontWeight: '500', marginTop: '2px' }}>
-                      {t(doc.department)} &bull; {t(doc.specialty)}
-                    </div>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
-                      <Calendar size={12} /> {doc.weeklyDays.map(d => t(d)).join(', ')} &bull; {doc.slotsPerDay} slots/day
-                    </div>
+              <div key={doc.id} className="ios-glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '12px' }}>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <h4 style={{ fontSize: '15px', fontWeight: '600' }}>{t(doc.name)}</h4>
+                    <span className={`badge ${doc.isActive ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '10px', padding: '2px 6px' }}>
+                      {doc.isActive ? t('Active') : t('On Leave')}
+                    </span>
                   </div>
-                  <button 
-                    className="btn-secondary"
-                    style={{ padding: '8px 12px', borderRadius: '10px' }}
-                    onClick={() => openEditModal(doc)}
-                  >
-                    <Edit2 size={14} /> {t('Edit')}
-                  </button>
+                  <div style={{ fontSize: '13px', color: 'var(--primary-color)', fontWeight: '500', marginTop: '2px' }}>
+                    {t(doc.department)} &bull; {t(doc.specialty)}
+                  </div>
+                  <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
+                    <Calendar size={12} /> {doc.weeklyDays.map(d => t(d)).join(', ')} &bull; {doc.slotsPerDay} slots/day
+                  </div>
                 </div>
+                <button 
+                  className="btn-secondary"
+                  style={{ padding: '8px 12px', borderRadius: '10px', width: '100%' }}
+                  onClick={() => openEditModal(doc)}
+                >
+                  <Edit2 size={14} /> {t('Edit')}
+                </button>
               </div>
             ))}
           </div>
@@ -231,7 +230,7 @@ export default function AdminDashboard() {
                     value={newDocExp} 
                     onChange={(e) => setNewDocExp(e.target.value)}
                     required
-                />
+                  />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Daily Capacity Slots</label>
