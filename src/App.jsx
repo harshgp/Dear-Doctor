@@ -137,23 +137,7 @@ function DashboardContainer() {
             <Globe size={12} />
             {language === 'en' ? 'ગુજરાતી' : 'English'}
           </button>
-
-          {currentUser && (
-            <button 
-              type="button" 
-              onClick={logoutUser}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: 'var(--danger)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center'
-              }}
-            >
-              <LogOut size={16} />
-            </button>
-          )}
+          {/* Language Toggle */}
         </div>
       </header>
 

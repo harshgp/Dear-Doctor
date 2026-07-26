@@ -3,7 +3,7 @@ import { AppContext } from '../context/AppContext';
 import { 
   User, Phone, Search, Calendar, Wallet, Settings, 
   MapPin, Plus, CheckCircle, Share2, Clipboard, Mic,
-  TrendingUp, RefreshCw, X, CreditCard, ChevronRight, UserPlus, FileText, Sun, Moon
+  TrendingUp, RefreshCw, X, CreditCard, ChevronRight, UserPlus, FileText, Sun, Moon, LogOut
 } from 'lucide-react';
 
 export default function AgentDashboard() {
@@ -20,6 +20,7 @@ export default function AgentDashboard() {
     getBookedSlotsCount,
     cancelAppointment,
     updateAgentProfile,
+    logoutUser,
     t
   } = useContext(AppContext);
 
@@ -777,7 +778,7 @@ export default function AgentDashboard() {
                 {theme === 'dark' ? <Moon size={16} style={{ color: 'var(--primary-color)' }} /> : <Sun size={16} style={{ color: 'var(--primary-color)' }} />}
                 {t('Display Preferences')}
               </h3>
-              <div className="flex-between">
+              <div className="flex-between" style={{ marginBottom: '16px' }}>
                 <span style={{ fontSize: '14px', fontWeight: '500' }}>{t('Dark Mode')}</span>
                 <button
                   type="button"
@@ -788,6 +789,17 @@ export default function AgentDashboard() {
                   {theme === 'dark' ? t('Active') : t('On Leave')}
                 </button>
               </div>
+
+              {/* Logout Button */}
+              <button
+                type="button"
+                className="btn-danger"
+                onClick={logoutUser}
+                style={{ width: '100%', padding: '12px', borderRadius: '12px', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              >
+                <LogOut size={16} />
+                {t('Logout')}
+              </button>
             </div>
           </div>
 

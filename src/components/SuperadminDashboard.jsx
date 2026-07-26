@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { AppContext } from '../context/AppContext';
-import { UserCheck, Check, X, Shield, Wallet, Users, Calendar, Activity, TrendingUp } from 'lucide-react';
+import { UserCheck, Check, X, Shield, Wallet, Users, Calendar, Activity, TrendingUp, LogOut } from 'lucide-react';
 
 export default function SuperadminDashboard() {
-  const { allAgents, appointments, approveAgent, rejectAgent, t } = useContext(AppContext);
+  const { allAgents, appointments, approveAgent, rejectAgent, logoutUser, t } = useContext(AppContext);
 
   const pendingAgents = allAgents.filter((a) => a.status === 'pending');
   const approvedAgents = allAgents.filter((a) => a.status === 'approved');
@@ -178,6 +178,18 @@ export default function SuperadminDashboard() {
 
       </div>
 
+      {/* Logout Button */}
+      <div style={{ marginTop: '24px' }}>
+        <button 
+          type="button" 
+          className="btn-danger" 
+          onClick={logoutUser}
+          style={{ width: '100%', padding: '12px', borderRadius: '12px', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+        >
+          <LogOut size={16} />
+          {t('Logout')}
+        </button>
+      </div>
     </div>
   );
 }

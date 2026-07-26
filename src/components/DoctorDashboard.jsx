@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../context/AppContext';
-import { User, Phone, CheckCircle, Clock, Check, AlertCircle } from 'lucide-react';
+import { User, Phone, CheckCircle, Clock, Check, AlertCircle, LogOut } from 'lucide-react';
 
 export default function DoctorDashboard() {
-  const { hospitals, appointments, completeAppointment, t } = useContext(AppContext);
+  const { hospitals, appointments, completeAppointment, logoutUser, t } = useContext(AppContext);
   
   const allDoctors = hospitals.flatMap(hosp => 
     hosp.doctors.map(doc => ({
@@ -154,6 +154,18 @@ export default function DoctorDashboard() {
           <p>No active doctor available. Add doctors in the Admin panel.</p>
         </div>
       )}
+      {/* Logout Button */}
+      <div style={{ marginTop: '24px' }}>
+        <button 
+          type="button" 
+          className="btn-danger" 
+          onClick={logoutUser}
+          style={{ width: '100%', padding: '12px', borderRadius: '12px', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+        >
+          <LogOut size={16} />
+          {t('Logout')}
+        </button>
+      </div>
     </div>
   );
 }

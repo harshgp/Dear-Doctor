@@ -1,9 +1,9 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../context/AppContext';
-import { Plus, Edit2, ShieldAlert, Sparkles, Stethoscope, Check, Calendar, Activity } from 'lucide-react';
+import { Plus, Edit2, ShieldAlert, Sparkles, Stethoscope, Check, Calendar, Activity, LogOut } from 'lucide-react';
 
 export default function AdminDashboard() {
-  const { hospitals, appointments, addDoctor, editDoctor, t } = useContext(AppContext);
+  const { hospitals, appointments, addDoctor, editDoctor, logoutUser, t } = useContext(AppContext);
   const [selectedHospitalId, setSelectedHospitalId] = useState(hospitals[0]?.id || '');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -394,6 +394,18 @@ export default function AdminDashboard() {
           </div>
         </div>
       )}
+      {/* Logout Button */}
+      <div style={{ marginTop: '24px' }}>
+        <button 
+          type="button" 
+          className="btn-danger" 
+          onClick={logoutUser}
+          style={{ width: '100%', padding: '12px', borderRadius: '12px', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+        >
+          <LogOut size={16} />
+          {t('Logout')}
+        </button>
+      </div>
     </div>
   );
 }
