@@ -1,9 +1,10 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../context/AppContext';
-import { User, Phone, CheckCircle, Clock, Check, AlertCircle, LogOut } from 'lucide-react';
+import { User, Phone, CheckCircle, Clock, Check, AlertCircle, LogOut, Calendar, Settings, Sun, Moon } from 'lucide-react';
 
 export default function DoctorDashboard() {
-  const { hospitals, appointments, completeAppointment, logoutUser, t } = useContext(AppContext);
+  const { hospitals, appointments, completeAppointment, logoutUser, theme, toggleTheme, t } = useContext(AppContext);
+  const [activeSubTab, setActiveSubTab] = useState('appointments');
   
   const allDoctors = hospitals.flatMap(hosp => 
     hosp.doctors.map(doc => ({
@@ -31,6 +32,25 @@ export default function DoctorDashboard() {
   return (
     <div className="doctor-dashboard">
       
+      {/* Desktop Tabs Header Selection */}
+      <div className="desktop-tabs" style={{ marginBottom: '24px' }}>
+        <button
+          type="button"
+          className={`desktop-tab-btn ${activeSubTab === 'appointments' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('appointments')}
+        >
+          {t('Appointments')}
+        </button>
+        <button
+          type="button"
+          className={`desktop-tab-btn ${activeSubTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('settings')}
+        >
+          {t('Settings')}
+        </button>
+      </div>
+
+      {/* Simulator Doctor Session dropdown selector card */}
       <div className="ios-glass-card" style={{ marginBottom: '20px', padding: '16px' }}>
         <div className="form-group" style={{ margin: 0 }}>
           <label className="form-label">{t('Simulate Doctor Session')}</label>
@@ -48,124 +68,147 @@ export default function DoctorDashboard() {
         </div>
       </div>
 
-      {activeDoctor ? (
-        <>
-          <div className="doctor-stats-grid" style={{ marginBottom: '20px' }}>
-            <div className="ios-glass-card text-center" style={{ padding: '12px' }}>
-              <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--primary-color)' }}>
-                {plannedQueue.length}
-              </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>{t('In Queue')}</div>
-            </div>
-            <div className="ios-glass-card text-center" style={{ padding: '12px' }}>
-              <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--success)' }}>
-                {completedQueue.length}
-              </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>{t('Completed')}</div>
-            </div>
-            <div className="ios-glass-card text-center" style={{ padding: '12px' }}>
-              <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-main)' }}>
-                ₹{totalCollections}
-              </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>{t('Token Fees')}</div>
-            </div>
-          </div>
-
-          <div>
-            <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Clock size={18} style={{ color: 'var(--primary-color)' }} />
-              {t('Planned Consultations')} ({plannedQueue.length})
-            </h3>
-
-            {plannedQueue.length === 0 ? (
-              <div className="ios-glass-card text-center" style={{ padding: '40px 20px', color: 'var(--text-muted)' }}>
-                <CheckCircle size={36} style={{ color: 'var(--success)', marginBottom: '12px', opacity: 0.6 }} />
-                <p style={{ fontSize: '14px' }}>All patient visits have been completed for today.</p>
-              </div>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {plannedQueue.map((app) => (
-                  <div key={app.id} className="ios-glass-card" style={{ padding: '16px' }}>
-                    <div className="flex-between" style={{ marginBottom: '12px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ 
-                          width: '42px', 
-                          height: '42px', 
-                          borderRadius: '50%', 
-                          background: 'var(--primary-light)', 
-                          color: 'var(--primary-color)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: '700',
-                          fontSize: '16px',
-                          border: '1px solid var(--border-color)'
-                        }}>
-                          {app.tokenNumber}
-                        </div>
-                        <div>
-                          <div style={{ fontWeight: '600', fontSize: '15px', color: 'var(--text-main)' }}>
-                            {t(app.patientName)}
-                          </div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-                            <User size={12} /> {app.patientAge} Years &bull; <Phone size={12} /> {app.patientPhone}
-                          </div>
-                        </div>
-                      </div>
-                      <span className={`badge ${app.caseType === 'Return Case' ? 'badge-success' : 'badge-primary'}`}>
-                        {t(app.caseType)}
-                      </span>
-                    </div>
-
-                    <div className="flex-between" style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: '8px', marginBottom: '12px' }}>
-                      <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                        {t('Token ID')}: <strong style={{ color: 'var(--text-main)' }}>{app.id}</strong>
-                      </div>
-                      <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                        {t('Slot')}: <strong style={{ color: 'var(--text-main)' }}>{app.timeSlot}</strong>
-                      </div>
-                    </div>
-
-                    {app.problemDescription && (
-                      <div style={{ fontSize: '13px', background: '#fff9f9', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255, 59, 48, 0.08)', marginBottom: '12px' }}>
-                        <strong style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', textTransform: 'uppercase', marginBottom: '2px' }}>
-                          {t('Patient Ailment')}
-                        </strong>
-                        <span style={{ fontWeight: '500' }}>{t(app.problemDescription)}</span>
-                      </div>
-                    )}
-
-                    <button 
-                      className="btn-primary" 
-                      style={{ width: '100%', padding: '10px' }}
-                      onClick={() => completeAppointment(app.id)}
-                    >
-                      <Check size={16} /> {t('Complete Consultation')}
-                    </button>
+      {activeSubTab === 'appointments' && (
+        <div>
+          {activeDoctor ? (
+            <>
+              {/* Doctor Stats Grid */}
+              <div className="doctor-stats-grid" style={{ marginBottom: '20px' }}>
+                <div className="ios-glass-card text-center" style={{ padding: '12px' }}>
+                  <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--primary-color)' }}>
+                    {plannedQueue.length}
                   </div>
-                ))}
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>{t('In Queue')}</div>
+                </div>
+                <div className="ios-glass-card text-center" style={{ padding: '12px' }}>
+                  <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--success)' }}>
+                    {completedQueue.length}
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>{t('Completed')}</div>
+                </div>
+                <div className="ios-glass-card text-center" style={{ padding: '12px' }}>
+                  <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-main)' }}>
+                    ₹{totalCollections}
+                  </div>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>{t('Token Fees')}</div>
+                </div>
               </div>
-            )}
-          </div>
-        </>
-      ) : (
-        <div className="ios-glass-card text-center" style={{ padding: '20px', color: 'var(--danger)' }}>
-          <AlertCircle size={24} style={{ marginBottom: '8px' }} />
-          <p>No active doctor available. Add doctors in the Admin panel.</p>
+
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Clock size={18} style={{ color: 'var(--primary-color)' }} />
+                  {t('Planned Consultations')} ({plannedQueue.length})
+                </h3>
+
+                {plannedQueue.length === 0 ? (
+                  <div className="ios-glass-card text-center" style={{ padding: '40px 20px', color: 'var(--text-muted)' }}>
+                    <CheckCircle size={32} style={{ color: 'var(--success)', marginBottom: '12px', opacity: 0.6 }} />
+                    <p style={{ fontSize: '14px' }}>{t('No patients in consultation queue.')}</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {plannedQueue.map((app) => (
+                      <div key={app.id} className="ios-glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        <div className="flex-between">
+                          <div>
+                            <span className="badge badge-primary" style={{ fontSize: '10px', marginBottom: '4px' }}>
+                              Token #{app.tokenNumber}
+                            </span>
+                            <h4 style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-main)' }}>
+                              {app.patientName}
+                            </h4>
+                          </div>
+                          <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--primary-color)' }}>
+                            {app.timeSlot}
+                          </span>
+                        </div>
+
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                          Age: {app.patientAge} &bull; Gender: {t(app.patientGender)} &bull; Phone: {app.patientPhone}
+                        </div>
+
+                        {app.problem && (
+                          <div style={{ background: 'var(--primary-light)', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', borderLeft: '3px solid var(--primary-color)' }}>
+                            <strong>{t('Ailment')}:</strong> {t(app.problem)}
+                          </div>
+                        )}
+
+                        <button 
+                          className="btn-primary" 
+                          style={{ width: '100%', padding: '10px' }}
+                          onClick={() => completeAppointment(app.id)}
+                        >
+                          <Check size={16} /> {t('Complete Consultation')}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="ios-glass-card text-center" style={{ padding: '20px', color: 'var(--danger)' }}>
+              <AlertCircle size={24} style={{ marginBottom: '8px' }} />
+              <p>No active doctor available. Add doctors in the Admin panel.</p>
+            </div>
+          )}
         </div>
       )}
-      {/* Logout Button */}
-      <div style={{ marginTop: '24px' }}>
-        <button 
-          type="button" 
-          className="btn-danger" 
-          onClick={logoutUser}
-          style={{ width: '100%', padding: '12px', borderRadius: '12px', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+
+      {activeSubTab === 'settings' && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          
+          {/* Display Preferences Switcher */}
+          <div className="ios-glass-card">
+            <h3 style={{ fontSize: '15px', fontWeight: '600', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              {theme === 'dark' ? <Moon size={16} style={{ color: 'var(--primary-color)' }} /> : <Sun size={16} style={{ color: 'var(--primary-color)' }} />}
+              {t('Display Preferences')}
+            </h3>
+            <div className="flex-between" style={{ marginBottom: '16px' }}>
+              <span style={{ fontSize: '14px', fontWeight: '500' }}>{t('Dark Mode')}</span>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={toggleTheme}
+                style={{ padding: '8px 16px', borderRadius: '10px', fontSize: '13px' }}
+              >
+                {theme === 'dark' ? t('Enabled') : t('Disabled')}
+              </button>
+            </div>
+
+            {/* Logout Button */}
+            <button
+              type="button"
+              className="btn-danger"
+              onClick={logoutUser}
+              style={{ width: '100%', padding: '12px', borderRadius: '12px', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            >
+              <LogOut size={16} />
+              {t('Logout')}
+            </button>
+          </div>
+
+        </div>
+      )}
+
+      {/* Mobile-only Bottom Navigation Bar */}
+      <div className="bottom-nav">
+        <div 
+          className={`bottom-nav-item ${activeSubTab === 'appointments' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('appointments')}
         >
-          <LogOut size={16} />
-          {t('Logout')}
-        </button>
+          <Calendar />
+          <span>{t('Appointments')}</span>
+        </div>
+        <div 
+          className={`bottom-nav-item ${activeSubTab === 'settings' ? 'active' : ''}`}
+          onClick={() => setActiveSubTab('settings')}
+        >
+          <Settings />
+          <span>{t('Settings')}</span>
+        </div>
       </div>
+
     </div>
   );
 }
