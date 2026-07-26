@@ -3,7 +3,7 @@ import { AppContext } from '../context/AppContext';
 import { Plus, Edit2, ShieldAlert, Sparkles, Stethoscope, Check, Calendar, Activity } from 'lucide-react';
 
 export default function AdminDashboard() {
-  const { hospitals, appointments, addDoctor, editDoctor } = useContext(AppContext);
+  const { hospitals, appointments, addDoctor, editDoctor, t } = useContext(AppContext);
   const [selectedHospitalId, setSelectedHospitalId] = useState(hospitals[0]?.id || '');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -41,7 +41,6 @@ export default function AdminDashboard() {
       slotsPerDay: parseInt(newDocSlots, 10)
     });
 
-    // Reset Form
     setNewDocName('');
     setNewDocSpecialty('');
     setNewDocExp('');
@@ -92,16 +91,15 @@ export default function AdminDashboard() {
 
   const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-  // Global metrics
   const activeDoctorsCount = hospitals.flatMap((h) => h.doctors).filter((d) => d.isActive).length;
   const totalBookingsCount = appointments.filter((app) => app.status !== 'Canceled').length;
 
   return (
     <div className="admin-dashboard">
-      {/* Selector for Hospital */}
+      
       <div className="ios-glass-card" style={{ marginBottom: '20px', padding: '16px' }}>
         <div className="form-group" style={{ margin: 0 }}>
-          <label className="form-label">Active Hospital Location</label>
+          <label className="form-label">{t('Active Hospital Location')}</label>
           <select 
             className="form-control form-select"
             value={selectedHospitalId}
@@ -109,45 +107,43 @@ export default function AdminDashboard() {
           >
             {hospitals.map((hosp) => (
               <option key={hosp.id} value={hosp.id}>
-                {hosp.name} - {hosp.city}
+                {t(hosp.name)} - {t(hosp.city)}
               </option>
             ))}
           </select>
         </div>
       </div>
 
-      {/* Roster Metrics */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
         <div className="ios-glass-card flex-between" style={{ padding: '16px' }}>
           <div>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>Active Doctors</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>{t('Active Doctors')}</div>
             <div style={{ fontSize: '24px', fontWeight: '700', marginTop: '4px' }}>{activeDoctorsCount}</div>
           </div>
           <Stethoscope size={28} style={{ color: 'var(--primary-color)', opacity: 0.8 }} />
         </div>
         <div className="ios-glass-card flex-between" style={{ padding: '16px' }}>
           <div>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>Total Bookings</div>
+            <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontWeight: '600' }}>{t('Total Bookings')}</div>
             <div style={{ fontSize: '24px', fontWeight: '700', marginTop: '4px' }}>{totalBookingsCount}</div>
           </div>
           <Activity size={28} style={{ color: 'var(--success)', opacity: 0.8 }} />
         </div>
       </div>
 
-      {/* Hospital Details and Roster */}
       {activeHospital && (
         <div>
           <div className="flex-between" style={{ marginBottom: '16px' }}>
             <div>
-              <h2 style={{ fontSize: '18px', fontWeight: '700' }}>Hospital Roster</h2>
-              <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{activeHospital.address}</p>
+              <h2 style={{ fontSize: '18px', fontWeight: '700' }}>{t('Hospital Roster')}</h2>
+              <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{t(activeHospital.address)}</p>
             </div>
             <button 
               className="btn-primary" 
               style={{ padding: '8px 16px', fontSize: '13px', borderRadius: '12px' }}
               onClick={() => setShowAddModal(true)}
             >
-              <Plus size={16} /> Add Doctor
+              <Plus size={16} /> {t('Add Doctor')}
             </button>
           </div>
 
@@ -157,16 +153,16 @@ export default function AdminDashboard() {
                 <div className="flex-between">
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <h4 style={{ fontSize: '15px', fontWeight: '600' }}>{doc.name}</h4>
+                      <h4 style={{ fontSize: '15px', fontWeight: '600' }}>{t(doc.name)}</h4>
                       <span className={`badge ${doc.isActive ? 'badge-success' : 'badge-danger'}`} style={{ fontSize: '10px', padding: '2px 6px' }}>
-                        {doc.isActive ? 'Active' : 'On Leave'}
+                        {doc.isActive ? t('Active') : t('On Leave')}
                       </span>
                     </div>
                     <div style={{ fontSize: '13px', color: 'var(--primary-color)', fontWeight: '500', marginTop: '2px' }}>
-                      {doc.department} &bull; {doc.specialty}
+                      {t(doc.department)} &bull; {t(doc.specialty)}
                     </div>
                     <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '6px' }}>
-                      <Calendar size={12} /> {doc.weeklyDays.join(', ')} &bull; {doc.slotsPerDay} slots/day
+                      <Calendar size={12} /> {doc.weeklyDays.map(d => t(d)).join(', ')} &bull; {doc.slotsPerDay} slots/day
                     </div>
                   </div>
                   <button 
@@ -174,7 +170,7 @@ export default function AdminDashboard() {
                     style={{ padding: '8px 12px', borderRadius: '10px' }}
                     onClick={() => openEditModal(doc)}
                   >
-                    <Edit2 size={14} /> Edit
+                    <Edit2 size={14} /> {t('Edit')}
                   </button>
                 </div>
               </div>
@@ -187,7 +183,7 @@ export default function AdminDashboard() {
       {showAddModal && (
         <div className="modal-overlay">
           <div className="modal-content" style={{ padding: '24px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>Add Doctor to Roster</h3>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>{t('Add Doctor')}</h3>
             <form onSubmit={handleAddSubmit}>
               <div className="form-group">
                 <label className="form-label">Doctor Name</label>
@@ -209,7 +205,7 @@ export default function AdminDashboard() {
                   onChange={(e) => setNewDocDept(e.target.value)}
                 >
                   {activeHospital.departments.map((dept) => (
-                    <option key={dept} value={dept}>{dept}</option>
+                    <option key={dept} value={dept}>{t(dept)}</option>
                   ))}
                 </select>
               </div>
@@ -235,7 +231,7 @@ export default function AdminDashboard() {
                     value={newDocExp} 
                     onChange={(e) => setNewDocExp(e.target.value)}
                     required
-                  />
+                />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Daily Capacity Slots</label>
@@ -267,7 +263,7 @@ export default function AdminDashboard() {
                         borderColor: newDocDays.includes(day) ? 'var(--primary-color)' : 'rgba(0,0,0,0.1)'
                       }}
                     >
-                      {day}
+                      {t(day)}
                     </button>
                   ))}
                 </div>
@@ -275,10 +271,10 @@ export default function AdminDashboard() {
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
                 <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => setShowAddModal(false)}>
-                  Cancel
+                  {t('Cancel')}
                 </button>
                 <button type="submit" className="btn-primary" style={{ flex: 1 }}>
-                  Save Doctor
+                  {t('Save Doctor')}
                 </button>
               </div>
             </form>
@@ -290,7 +286,7 @@ export default function AdminDashboard() {
       {showEditModal && (
         <div className="modal-overlay">
           <div className="modal-content" style={{ padding: '24px' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>Edit Doctor Details</h3>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>{t('Edit')}</h3>
             <form onSubmit={handleEditSubmit}>
               <div className="form-group">
                 <label className="form-label">Doctor Name</label>
@@ -311,7 +307,7 @@ export default function AdminDashboard() {
                   onChange={(e) => setEditDocDept(e.target.value)}
                 >
                   {activeHospital.departments.map((dept) => (
-                    <option key={dept} value={dept}>{dept}</option>
+                    <option key={dept} value={dept}>{t(dept)}</option>
                   ))}
                 </select>
               </div>
@@ -368,7 +364,7 @@ export default function AdminDashboard() {
                         borderColor: editDocDays.includes(day) ? 'var(--primary-color)' : 'rgba(0,0,0,0.1)'
                       }}
                     >
-                      {day}
+                      {t(day)}
                     </button>
                   ))}
                 </div>
@@ -389,10 +385,10 @@ export default function AdminDashboard() {
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
                 <button type="button" className="btn-secondary" style={{ flex: 1 }} onClick={() => setShowEditModal(false)}>
-                  Cancel
+                  {t('Cancel')}
                 </button>
                 <button type="submit" className="btn-primary" style={{ flex: 1 }}>
-                  Save Changes
+                  {t('Save Doctor')}
                 </button>
               </div>
             </form>

@@ -100,11 +100,53 @@ const initialAllAgents = [
   { id: 2, name: 'Karan Patel', village: 'Visnagar Rural', phone: '9825123456', code: 'AGT-802', status: 'pending', wallet_balance: 0 }
 ];
 
-// Simple Gujarati translations dictionary mappings
+// Complete Gujarati translations mapping
 const guTranslations = {
-  'dear doctor': 'વ્હાલા ડોક્ટર',
+  // Brand name exception rule
+  'dear doctor': 'Dear Doctor',
   'north gujarat network': 'ઉત્તર ગુજરાત નેટવર્ક',
-  'village agent wallet': 'ગ્રામ્ય એજન્ટ પાકીટ',
+
+  // Cities & Hospitals
+  'mehsana': 'મહેસાણા',
+  'palanpur': 'પાલનપુર',
+  'mehsana district civil hospital': 'મહેસાણા જિલ્લા સિવિલ હોસ્પિટલ',
+  'palanpur apex hospital': 'પાલનપુર એપેક્સ હોસ્પિટલ',
+  'radhanpur road, near modhera cross roads, mehsana': 'રાધનપુર રોડ, મોઢેરા ચાર રસ્તા પાસે, મહેસાણા',
+  'deesa highway, near abu road highway crossing, palanpur': 'ડીસા હાઇવે, આબુ રોડ હાઇવે ક્રોસિંગ પાસે, પાલનપુર',
+  
+  // Departments
+  'general medicine': 'જનરલ મેડિસિન',
+  'pediatrics': 'બાળરોગ વિભાગ (પેડિયાટ્રિક્સ)',
+  'cardiology': 'હૃદય રોગ વિભાગ (કાર્ડિયોલોજી)',
+  'orthopedics': 'હાડકાનો વિભાગ (ઓર્થોપેડિક્સ)',
+  
+  // Doctors
+  'dr. kirit patel': 'ડો. કિરીટ પટેલ',
+  'dr. hasmukh chaudhary': 'ડો. હસમુખ ચૌધરી',
+  'dr. pinakin shah': 'ડો. પિનાકીન શાહ',
+  'dr. bharat prajapati': 'ડો. ભરત પ્રજાપતિ',
+  'dr. ramesh thakor': 'ડો. રમેશ ઠાકોર',
+  
+  // Specialties
+  'md - internal medicine': 'MD - જનરલ ફિઝિશિયન',
+  'dch - child specialist': 'DCH - બાળરોગ નિષ્ણાત',
+  'dm - cardiologist': 'DM - હૃદયરોગ નિષ્ણાત',
+  'mbbs - family doctor': 'MBBS - ફેમિલી ડોક્ટર',
+  'ms - orthopedic surgeon': 'MS - હાડકાના સર્જન',
+
+  // Weekdays
+  'sun': 'રવિ',
+  'mon': 'સોમ',
+  'tue': 'મંગળ',
+  'wed': 'બુધ',
+  'thu': 'ગુરુ',
+  'fri': 'શુક્ર',
+  'sat': 'શનિ',
+  'off-day': 'રજા',
+  'full': 'ભરેલ',
+  'left': 'ખાલી',
+
+  // Patient / Registration
   '1. patient details': '૧. દર્દીની વિગતો',
   'new patient': 'નવા દર્દી',
   'registered villager': 'નોંધાયેલા ગ્રામજન',
@@ -120,7 +162,11 @@ const guTranslations = {
   'speak now': 'હવે બોલો',
   'register': 'નોંધણી કરો',
   'select villager patient': 'નોંધાયેલા દર્દી પસંદ કરો',
+  
+  // Booking Form
   '2. select center & doctor': '૨. હોસ્પિટલ અને ડોક્ટર પસંદ કરો',
+  'all cities': 'બધા શહેરો',
+  'all departments': 'બધા વિભાગો',
   'select doctor': 'ડોક્ટર પસંદ કરો',
   'available days': 'ઉપલબ્ધ દિવસો',
   'limit': 'મર્યાદા',
@@ -130,27 +176,38 @@ const guTranslations = {
   'verified return case! previous visit was within 30 days. no token fee (fee: 0) will be charged.': 'પરત દર્દી ચકાસાયેલ છે! અગાઉની મુલાકાત ૩૦ દિવસની અંદર હતી. કોઈ ફી લેવામાં આવશે નહીં.',
   'token consultation charge:': 'ટોકન ફી:',
   'confirm booking & pay': 'બુકિંગ કન્ફર્મ કરો અને ચૂકવો',
-  'settings & wallet': 'સેટિંગ્સ અને પાકીટ',
-  'patient booking': 'નવું બુકિંગ',
-  'wallet balance': 'પાકીટ બેલેન્સ',
-  'instant recharge wallet': 'પાકીટ રિચાર્જ કરો',
+  'appointment confirmed': 'બુકિંગ સફળ રહ્યું',
+  'token id': 'ટોકન આઈડી',
+  'token no': 'ટોકન નંબર',
+  'slot': 'સમય ગાળો',
+  'fee': 'ટોકન ફી',
+  'scan at hospital counter': 'હોસ્પિટલ કાઉન્ટર પર સ્કેન કરો',
+  'share sms': 'મેસેજ મોકલો',
+  'book new': 'બીજું બુકિંગ કરો',
+
+  // Wallet
+  'wallet balance': 'વોલેટ બેલેન્સ',
+  'village agent wallet': 'ગ્રામ્ય એજન્ટ વોલેટ',
+  'instant recharge wallet': 'વોલેટ રિચાર્જ કરો',
   'recharge': 'રિચાર્જ',
-  'dealer / agent profile': 'ડીલર / એજન્ટ પ્રોફાઇલ',
-  'dealer name': 'ડીલરનું નામ',
+  'dealer / agent profile': 'એજન્ટ પ્રોફાઇલ',
+  'dealer name': 'એજન્ટનું નામ',
   'assigned village': 'ફાળવેલ ગામ',
   'registered phone': 'નોંધાયેલ મોબાઈલ',
   'dealer unique code': 'એજન્ટ કોડ',
   'save profile': 'પ્રોફાઇલ સાચવો',
   'transaction ledger': 'વ્યવહાર ખાતાવહી',
+  'settings & wallet': 'સેટિંગ્સ અને વોલેટ',
+  'patient booking': 'નવું બુકિંગ',
   'logout': 'લોગઆઉટ',
+
+  // Session & Roles
   'switch role': 'ભૂમિકા બદલો',
-  'simulate doctor session': 'ડોક્ટર લોગિન ટેસ્ટ',
+  'simulate doctor session': 'ડોક્ટર સત્ર ટેસ્ટ',
   'in queue': 'લાઈનમાં',
   'completed': 'પૂર્ણ કરેલ',
   'token fees': 'ટોકન ફી',
   'planned consultations': 'નિયોજિત પરામર્શ',
-  'token id': 'ટોકન આઈડી',
-  'slot': 'સમય ગાળો',
   'complete consultation': 'પરામર્શ પૂર્ણ કરો',
   'active hospital location': 'હોસ્પિટલ સેન્ટર',
   'active doctors': 'સક્રિય ડોક્ટરો',
@@ -161,7 +218,19 @@ const guTranslations = {
   'active': 'સક્રિય',
   'edit': 'બદલો',
   'cancel': 'રદ કરો',
-  'save doctor': 'ડોક્ટર સાચવો'
+  'save doctor': 'ડોક્ટર સાચવો',
+
+  // Database seed texts that might render
+  'dinesh chaudhary': 'દિનેશ ચૌધરી',
+  'gozaria village': 'ગોઝારીયા ગામ',
+  'karan patel': 'કરણ પટેલ',
+  'visnagar rural': 'વિસનગર ગ્રામ્ય',
+  'initial wallet setup (recharge: 500 + bonus: 25)': 'પ્રારંભિક વોલેટ સેટઅપ (રિચાર્જ: ૫૦૦ + બોનસ: ૨૫)',
+  'wallet recharge (amount: 500 + bonus: 25)': 'વોલેટ રિચાર્જ (રકમ: ૫૦૦ + બોનસ: ૨૫)',
+  'wallet recharge (amount: 1000 + bonus: 50)': 'વોલેટ રિચાર્જ (રકમ: ૧૦૦૦ + બોનસ: ૫૦)',
+  'wallet recharge (amount: 1500 + bonus: 75)': 'વોલેટ રિચાર્જ (રકમ: ૧૫૦૦ + બોનસ: ૭૫)',
+  'activation bonus for agent': 'એજન્ટ સક્રિયકરણ બોનસ',
+  'refund for canceled booking': 'રદ કરેલ બુકિંગ રિફંડ'
 };
 
 export const AppProvider = ({ children }) => {
@@ -169,7 +238,7 @@ export const AppProvider = ({ children }) => {
   const [language, setLanguage] = useState('en'); // 'en' or 'gu'
   const [currentUser, setCurrentUser] = useState(() => {
     const saved = localStorage.getItem('dear_doctor_user');
-    return saved ? JSON.parse(saved) : null; // { name, code, role, village, phone }
+    return saved ? JSON.parse(saved) : null;
   });
 
   const [hospitals, setHospitals] = useState(() => {
@@ -261,11 +330,29 @@ export const AppProvider = ({ children }) => {
     }
   }, [currentUser]);
 
-  // Gujarati translation translator helper
+  // Translate helper supporting database strings case-insensitive matching
   const t = (key) => {
-    if (language === 'en') return key;
-    const lowerKey = key.toLowerCase().trim();
-    return guTranslations[lowerKey] || key;
+    if (!key) return '';
+    const cleanKey = key.toString().trim();
+    if (language === 'en') {
+      if (cleanKey.toLowerCase() === 'dear doctor') return 'Dear Doctor';
+      return cleanKey;
+    }
+    const lowerKey = cleanKey.toLowerCase();
+    
+    // Exact match
+    if (guTranslations[lowerKey]) {
+      return guTranslations[lowerKey];
+    }
+    
+    // Sub-phrase matching (e.g. for dynamic values like "Booking for Sanjay Patel (Dr. Kirit Patel)")
+    let translated = cleanKey;
+    Object.keys(guTranslations).forEach((engPhrase) => {
+      const regex = new RegExp(engPhrase, 'gi');
+      translated = translated.replace(regex, guTranslations[engPhrase]);
+    });
+    
+    return translated;
   };
 
   const loginUser = (username, password) => {
@@ -295,7 +382,6 @@ export const AppProvider = ({ children }) => {
       });
     }
 
-    // LocalStorage simulation authentication
     if (username === 'superadmin' && password === 'superadmin') {
       setCurrentUser({ name: 'Superadmin Desk', code: 'SUPERADMIN', role: 'superadmin' });
       return Promise.resolve({ success: true });
@@ -340,7 +426,6 @@ export const AppProvider = ({ children }) => {
       });
     }
 
-    // LocalStorage simulation registration
     const code = 'AGT-' + (800 + allAgents.length);
     const newAgent = {
       id: Date.now(),
@@ -374,11 +459,9 @@ export const AppProvider = ({ children }) => {
       return;
     }
 
-    // Local state
     setAllAgents((prev) =>
       prev.map((a) => {
         if (a.id === agentId) {
-          // Log transactions
           const newTx = {
             id: `tx-${Date.now()}`,
             date: new Date().toISOString().split('T')[0],
@@ -567,7 +650,6 @@ export const AppProvider = ({ children }) => {
       };
     }
 
-    // Local simulation
     const returnStatus = getReturnCaseStatus(patientPhone, hospitalId, doctor.department);
     const fee = returnStatus.isReturn ? 0 : 151;
     const caseType = returnStatus.isReturn ? 'Return Case' : 'New Case';

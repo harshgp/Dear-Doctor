@@ -3,9 +3,8 @@ import { AppContext } from '../context/AppContext';
 import { User, Phone, CheckCircle, Clock, Check, AlertCircle } from 'lucide-react';
 
 export default function DoctorDashboard() {
-  const { hospitals, appointments, completeAppointment } = useContext(AppContext);
+  const { hospitals, appointments, completeAppointment, t } = useContext(AppContext);
   
-  // Flatten all active doctors across all hospitals to select whom to simulate
   const allDoctors = hospitals.flatMap(hosp => 
     hosp.doctors.map(doc => ({
       ...doc,
@@ -18,7 +17,6 @@ export default function DoctorDashboard() {
 
   const activeDoctor = allDoctors.find(doc => doc.id === selectedDoctorId);
 
-  // Filter appointments for the selected doctor
   const doctorAppointments = appointments.filter(
     app => app.doctorId === selectedDoctorId
   );
@@ -26,17 +24,16 @@ export default function DoctorDashboard() {
   const plannedQueue = doctorAppointments.filter(app => app.status === 'Planned');
   const completedQueue = doctorAppointments.filter(app => app.status === 'Completed');
 
-  // Simple revenue check (₹151 for each New Case that is booked/paid)
   const totalCollections = doctorAppointments
     .filter(app => app.status !== 'Canceled' && app.caseType === 'New Case')
     .reduce((sum, app) => sum + app.feePaid, 0);
 
   return (
     <div className="doctor-dashboard">
-      {/* Selector to mock different doctor logins */}
+      
       <div className="ios-glass-card" style={{ marginBottom: '20px', padding: '16px' }}>
         <div className="form-group" style={{ margin: 0 }}>
-          <label className="form-label">Simulate Doctor Session</label>
+          <label className="form-label">{t('Simulate Doctor Session')}</label>
           <select 
             className="form-control form-select"
             value={selectedDoctorId}
@@ -44,7 +41,7 @@ export default function DoctorDashboard() {
           >
             {allDoctors.map((doc) => (
               <option key={doc.id} value={doc.id}>
-                {doc.name} ({doc.department} - {doc.hospitalName})
+                {t(doc.name)} ({t(doc.department)} - {t(doc.hospitalName)})
               </option>
             ))}
           </select>
@@ -53,33 +50,31 @@ export default function DoctorDashboard() {
 
       {activeDoctor ? (
         <>
-          {/* Stats Bar */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px', marginBottom: '20px' }}>
             <div className="ios-glass-card text-center" style={{ padding: '12px' }}>
               <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--primary-color)' }}>
                 {plannedQueue.length}
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>In Queue</div>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>{t('In Queue')}</div>
             </div>
             <div className="ios-glass-card text-center" style={{ padding: '12px' }}>
               <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--success)' }}>
                 {completedQueue.length}
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>Completed</div>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>{t('Completed')}</div>
             </div>
             <div className="ios-glass-card text-center" style={{ padding: '12px' }}>
               <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-main)' }}>
                 ₹{totalCollections}
               </div>
-              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>Token Fees</div>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: '500' }}>{t('Token Fees')}</div>
             </div>
           </div>
 
-          {/* Planned Consultations list */}
           <div>
             <h3 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Clock size={18} style={{ color: 'var(--primary-color)' }} />
-              Planned Consultations ({plannedQueue.length})
+              {t('Planned Consultations')} ({plannedQueue.length})
             </h3>
 
             {plannedQueue.length === 0 ? (
@@ -93,7 +88,6 @@ export default function DoctorDashboard() {
                   <div key={app.id} className="ios-glass-card" style={{ padding: '16px' }}>
                     <div className="flex-between" style={{ marginBottom: '12px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        {/* Token Badge */}
                         <div style={{ 
                           width: '42px', 
                           height: '42px', 
@@ -111,33 +105,42 @@ export default function DoctorDashboard() {
                         </div>
                         <div>
                           <div style={{ fontWeight: '600', fontSize: '15px', color: 'var(--text-main)' }}>
-                            {app.patientName}
+                            {t(app.patientName)}
                           </div>
-                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
                             <User size={12} /> {app.patientAge} Years &bull; <Phone size={12} /> {app.patientPhone}
                           </div>
                         </div>
                       </div>
                       <span className={`badge ${app.caseType === 'Return Case' ? 'badge-success' : 'badge-primary'}`}>
-                        {app.caseType}
+                        {t(app.caseType)}
                       </span>
                     </div>
 
                     <div className="flex-between" style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: '8px', marginBottom: '12px' }}>
                       <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                        Token ID: <strong style={{ color: 'var(--text-main)' }}>{app.id}</strong>
+                        {t('Token ID')}: <strong style={{ color: 'var(--text-main)' }}>{app.id}</strong>
                       </div>
                       <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                        Slot: <strong style={{ color: 'var(--text-main)' }}>{app.timeSlot}</strong>
+                        {t('Slot')}: <strong style={{ color: 'var(--text-main)' }}>{app.timeSlot}</strong>
                       </div>
                     </div>
+
+                    {app.problemDescription && (
+                      <div style={{ fontSize: '13px', background: '#fff9f9', padding: '10px 12px', borderRadius: '8px', border: '1px solid rgba(255, 59, 48, 0.08)', marginBottom: '12px' }}>
+                        <strong style={{ color: 'var(--text-muted)', fontSize: '11px', display: 'block', textTransform: 'uppercase', marginBottom: '2px' }}>
+                          {t('Patient Ailment')}
+                        </strong>
+                        <span style={{ fontWeight: '500' }}>{t(app.problemDescription)}</span>
+                      </div>
+                    )}
 
                     <button 
                       className="btn-primary" 
                       style={{ width: '100%', padding: '10px' }}
                       onClick={() => completeAppointment(app.id)}
                     >
-                      <Check size={16} /> Complete Consultation
+                      <Check size={16} /> {t('Complete Consultation')}
                     </button>
                   </div>
                 ))}
